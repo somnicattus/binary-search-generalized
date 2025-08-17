@@ -181,6 +181,7 @@ binarySearchArrayInsertionRight([5], 5, "asc"); // 1
 
 Insertion points with custom comparator (objects):
 ```ts
+import { binarySearchArrayInsertionLeft, binarySearchArrayInsertionRight } from "binary-search-generalized";
 const objs = [{ v: 1 }, { v: 3 }, { v: 3 }, { v: 5 }];
 const cmpObj = (a: { v: number }, b: { v: number }) => a.v - b.v;
 binarySearchArrayInsertionLeft(objs, { v: 3 }, cmpObj);   // 1
