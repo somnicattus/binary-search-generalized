@@ -1,6 +1,6 @@
 {
 	"name": "binary-search-generalized",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A generalized binary search implementation in TypeScript",
 	"keywords": ["binary search", "typescript", "algorithm"],
 	"type": "module",
@@ -21,7 +21,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/somnicattus/rotery"
+		"url": "https://github.com/somnicattus/binary-search-generalized"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
