@@ -1,0 +1,16 @@
+{
+	"extends": "@tsconfig/strictest/tsconfig.json",
+	"compilerOptions": {
+		/* Language and Environment */
+		"target": "ES2020",
+		"lib": ["ES2020"],
+
+		/* Modules */
+		"module": "node20",
+		"moduleResolution": "node16",
+
+		/* Emit */
+		"noEmit": true
+	},
+	"include": ["*.ts", "*.js", "!dist", "test/index.test.ts"]
+}

@@ -1,0 +1,8 @@
+# dependencies
+node_modules
+
+# package distribution files
+*.tgz
+
+# Finder (MacOS) folder config
+.DS_Store
