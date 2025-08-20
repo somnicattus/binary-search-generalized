@@ -144,6 +144,15 @@ export const binarySearch: {
 			);
 		}
 		if (typeof epsilon === "number") {
+			if (
+				!Number.isFinite(epsilon) ||
+				!Number.isFinite(alwaysEnd) ||
+				!Number.isFinite(neverEnd)
+			) {
+				throw new RangeError(
+					"alwaysEnd, neverEnd, and epsilon must be finite numbers",
+				);
+			}
 			if (high - epsilon === high || (low as number) + epsilon === low) {
 				throw new RangeError(
 					"epsilon must be representable at the precision of alwaysEnd and neverEnd",

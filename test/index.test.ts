@@ -103,9 +103,7 @@ describe("binarySearchDouble", () => {
 	it("should throw error when endpoints are infinite", () => {
 		expect(() =>
 			binarySearchDouble(Number.POSITIVE_INFINITY, 0, (v) => v > 1, 1),
-		).toThrow(
-			"epsilon must be representable at the precision of alwaysEnd and neverEnd",
-		);
+		).toThrow("alwaysEnd, neverEnd, and epsilon must be finite numbers");
 	});
 
 	it("should throw error for non-positive epsilon", () => {
@@ -508,6 +506,18 @@ describe("binarySearch", () => {
 		).toThrow(
 			"epsilon must be representable at the precision of alwaysEnd and neverEnd",
 		);
+	});
+
+	it("should throw error when endpoints are infinite", () => {
+		expect(() =>
+			binarySearch(
+				Number.POSITIVE_INFINITY,
+				0,
+				(v) => v > 1,
+				(l, h) => (l + h) / 2,
+				1,
+			),
+		).toThrow("alwaysEnd, neverEnd, and epsilon must be finite numbers");
 	});
 
 	it("should not throw for unsafe parameter check", () => {
