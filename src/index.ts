@@ -1,6 +1,7 @@
 /**
  * Performs a generalized binary search on a specified range of primitive numeric (`number` and `bigint`) values.
  * @example
+ * import { binarySearch } from "binary-search-generalized";
  * const result = binarySearch(
  *   0,
  *   100,
@@ -26,6 +27,7 @@ export const binarySearch: {
 	/**
 	 * Performs a generalized binary search on a specified range of primitive numeric values.
 	 * @example
+	 * import { binarySearch } from "binary-search-generalized";
 	 * const result = binarySearch(
 	 *   0,
 	 *   100,
@@ -71,6 +73,7 @@ export const binarySearch: {
 	/**
 	 * Performs a generalized binary search on a specified range of primitive numeric values.
 	 * @example
+	 * import { binarySearch } from "binary-search-generalized";
 	 * const result = binarySearch(
 	 *   0n,
 	 *   100n,
@@ -146,6 +149,7 @@ export const binarySearch: {
 /**
  * Performs a binary search on a specified range of integer values.
  * @example
+ * import { binarySearchInteger } from "binary-search-generalized";
  * const result = binarySearchInteger(
  *   0,
  *   100,
@@ -194,6 +198,7 @@ export const binarySearchInteger = (
 /**
  * Performs a binary search on a specified range of bigint values.
  * @example
+ * import { binarySearchBigint } from "binary-search-generalized";
  * const result = binarySearchBigint(
  *   100n,
  *   0n,
@@ -232,6 +237,7 @@ export const binarySearchBigint = (
 /**
  * Performs a binary search on a specified range of double-precision floating-point values.
  * @example
+ * import { binarySearchDouble } from "binary-search-generalized";
  * const result = binarySearchDouble(
  *   0,
  *   Math.PI / 2,
@@ -381,16 +387,20 @@ const _binarySearchArrayFindIndex = (
 /**
  * Performs a binary search on a sorted array.
  * @example
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray(['apple', 'banana', 'cherry', 'date', 'elderberry'], 'cherry');
  * // index will be 2
  * @example
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray([-90, -45, 0, 45, 90], 30);
  * // index will be -1 (not found)
  * @example
  * // Descending arrays are detected automatically (length >= 2)
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray([9, 7, 7, 5, 3], 7);
  * // index will be 1 (first occurrence)
  * @example
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray(
  *   [{ id: 1 }, { id: 2 }, { id: 3 }],
  *   { id: 2 },
@@ -410,6 +420,7 @@ export const binarySearchArray: {
 	/**
 	 * Performs a binary search on a sorted array.
 	 * @example
+	 * import { binarySearchArray } from "binary-search-generalized";
 	 * const index = binarySearchArray([-90, -45, 0, 45, 90], 30);
 	 * // index will be -1 (not found)
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -423,6 +434,7 @@ export const binarySearchArray: {
 	/**
 	 * Performs a binary search on a sorted array.
 	 * @example
+	 * import { binarySearchArray } from "binary-search-generalized";
 	 * const index = binarySearchArray([-90n, -45n, 0n, 45n, 90n], 30n);
 	 * // index will be -1 (not found)
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -436,6 +448,7 @@ export const binarySearchArray: {
 	/**
 	 * Performs a binary search on a sorted array.
 	 * @example
+	 * import { binarySearchArray } from "binary-search-generalized";
 	 * const index = binarySearchArray(['apple', 'banana', 'cherry', 'date', 'elderberry'], 'cherry');
 	 * // index will be 2
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -449,6 +462,7 @@ export const binarySearchArray: {
 	/**
 	 * Performs a binary search on a sorted array.
 	 * @example
+	 * import { binarySearchArray } from "binary-search-generalized";
 	 * const index = binarySearchArray(
 	 *   [{ id: 1 }, { id: 2 }, { id: 3 }],
 	 *   { id: 2 },
@@ -485,6 +499,7 @@ export const binarySearchArray: {
 /**
  * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
  * @example
+ * import { binarySearchArrayLast } from "binary-search-generalized";
  * const index = binarySearchArrayLast(['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry'], 'cherry');
  * // index will be 3
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -500,6 +515,7 @@ export const binarySearchArrayLast: {
 	/**
 	 * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
 	 * @example
+	 * import { binarySearchArrayLast } from "binary-search-generalized";
 	 * const index = binarySearchArrayLast([-90, -45, 0, 45, 90], 30);
 	 * // index will be -1 (not found)
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -513,6 +529,7 @@ export const binarySearchArrayLast: {
 	/**
 	 * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
 	 * @example
+	 * import { binarySearchArrayLast } from "binary-search-generalized";
 	 * const index = binarySearchArrayLast([-90n, -45n, 0n, 45n, 90n], 30n);
 	 * // index will be -1 (not found)
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -526,6 +543,7 @@ export const binarySearchArrayLast: {
 	/**
 	 * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
 	 * @example
+	 * import { binarySearchArrayLast } from "binary-search-generalized";
 	 * const index = binarySearchArrayLast(['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry'], 'cherry');
 	 * // index will be 3
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -539,6 +557,7 @@ export const binarySearchArrayLast: {
 	/**
 	 * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
 	 * @example
+	 * import { binarySearchArrayLast } from "binary-search-generalized";
 	 * const index = binarySearchArrayLast([{ id: 1 }, { id: 2 }, { id: 3 }], { id: 2 }, (a, b) => a.id - b.id);
 	 * // index will be 1
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -571,6 +590,7 @@ export const binarySearchArrayLast: {
 /**
  * Performs a binary search on a sorted array and returns the insertion point.
  * @example
+ * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
  * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
  * const insertion = 'cherry';
  * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -580,6 +600,7 @@ export const binarySearchArrayLast: {
  * // array and insertedArray will be ['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry']
  * @example
  * // Single-element arrays require explicit order when no comparator is provided
+ * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
  * const i1 = binarySearchArrayInsertionLeft([5], 4, 'asc'); // 0
  * const i2 = binarySearchArrayInsertionLeft([5], 6, 'asc'); // 1
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -598,6 +619,7 @@ export const binarySearchArrayInsertionLeft: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
 	 * const array = [-90, -45, 0, 45, 90];
 	 * const insertion = 0;
 	 * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -624,6 +646,7 @@ export const binarySearchArrayInsertionLeft: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
 	 * const array = [-90n, -45n, 0n, 45n, 90n];
 	 * const insertion = 0n;
 	 * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -650,6 +673,7 @@ export const binarySearchArrayInsertionLeft: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
 	 * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
 	 * const insertion = 'cherry';
 	 * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -676,6 +700,7 @@ export const binarySearchArrayInsertionLeft: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
 	 * const array = [{ id: 1 }, { id: 2 }, { id: 4 }];
 	 * const insertion = { id: 3 };
 	 * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -732,6 +757,7 @@ export const binarySearchArrayInsertionLeft: {
 /**
  * Performs a binary search on a sorted array and returns the insertion point.
  * @example
+ * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
  * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
  * const insertion = 'cherry';
  * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -741,6 +767,7 @@ export const binarySearchArrayInsertionLeft: {
  * // array and insertedArray will be ['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry']
  * @example
  * // Single-element arrays require explicit order when no comparator is provided
+ * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
  * const j1 = binarySearchArrayInsertionRight([5], 5, 'asc'); // 1
  * const j2 = binarySearchArrayInsertionRight([5], 4, 'asc'); // 0
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -759,6 +786,7 @@ export const binarySearchArrayInsertionRight: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
 	 * const array = [-90, -45, 0, 45, 90];
 	 * const insertion = 0;
 	 * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -785,6 +813,7 @@ export const binarySearchArrayInsertionRight: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
 	 * const array = [-90n, -45n, 0n, 45n, 90n];
 	 * const insertion = 0n;
 	 * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -811,6 +840,7 @@ export const binarySearchArrayInsertionRight: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
 	 * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
 	 * const insertion = 'cherry';
 	 * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -837,6 +867,7 @@ export const binarySearchArrayInsertionRight: {
 	/**
 	 * Performs a binary search on a sorted array and returns the insertion point.
 	 * @example
+	 * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
 	 * const array = [{ id: 1 }, { id: 2 }, { id: 4 }];
 	 * const insertion = { id: 3 };
 	 * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -895,6 +926,7 @@ export const binarySearchArrayInsertionRight: {
 /**
  * Performs a generalized binary search on a specified range of non‑primitive numeric‑like values.
  * @example
+ * import { binarySearchGeneralized } from "binary-search-generalized";
  * const target = new Date('1970-01-01T03:00:00Z').getTime();
  * const result = binarySearchGeneralized(
  *   new Date('1970-01-01T00:00:00Z'),
