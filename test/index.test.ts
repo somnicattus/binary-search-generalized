@@ -92,10 +92,12 @@ describe("binarySearchDouble", () => {
 		expect(result).toBeCloseTo(Math.PI / 6, 3);
 	});
 
-	it("should throw error for non-finite numbers", () => {
+	it("should throw error when endpoints are infinite", () => {
 		expect(() =>
 			binarySearchDouble(Number.POSITIVE_INFINITY, 0, (v) => v > 1, 1),
-		).toThrow("alwaysEnd and neverEnd must be finite numbers");
+		).toThrow(
+			"epsilon must be representable at the precision of alwaysEnd and neverEnd",
+		);
 	});
 
 	it("should throw error for non-positive epsilon", () => {
