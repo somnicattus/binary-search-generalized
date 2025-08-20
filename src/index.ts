@@ -264,7 +264,7 @@ export const binarySearchBigint = (
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search.
+ * @param epsilon - The maximum acceptable error margin for the search. By default, it is calculated by {@link getEpsilon}.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -279,7 +279,7 @@ export const binarySearchDouble = (
 	 * @remarks This function should be monotonic within the range.
 	 */
 	predicate: (value: number) => boolean,
-	epsilon: number,
+	epsilon?: number,
 	safety: "check" | "nocheck" = "check",
 ): number => {
 	return binarySearch(
@@ -287,7 +287,7 @@ export const binarySearchDouble = (
 		neverEnd,
 		predicate,
 		(low, high) => (low + high) / 2,
-		epsilon,
+		epsilon ?? getEpsilon(alwaysEnd, neverEnd),
 		safety,
 	);
 };

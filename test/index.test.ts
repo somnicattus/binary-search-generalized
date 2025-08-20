@@ -138,6 +138,38 @@ describe("binarySearchDouble", () => {
 		const result = binarySearchDouble(10, 20, (v) => v < 5, 1, "nocheck");
 		expect(result).toBe(10);
 	});
+
+	describe("default epsilon (omitted)", () => {
+		it("uses getEpsilon(alwaysEnd, neverEnd) by default - ascending", () => {
+			const always = 0;
+			const never = 10;
+			const pred = (v: number) => v <= 7.3;
+			const withDefault = binarySearchDouble(always, never, pred);
+			const eps = getEpsilon(always, never);
+			const withExplicit = binarySearchDouble(always, never, pred, eps);
+			expect(withDefault).toBe(withExplicit);
+		});
+
+		it("uses getEpsilon(alwaysEnd, neverEnd) by default - descending", () => {
+			const always = 10;
+			const never = 0;
+			const pred = (v: number) => v >= 7.3;
+			const withDefault = binarySearchDouble(always, never, pred);
+			const eps = getEpsilon(always, never);
+			const withExplicit = binarySearchDouble(always, never, pred, eps);
+			expect(withDefault).toBe(withExplicit);
+		});
+
+		it("works for very large magnitudes without passing epsilon", () => {
+			const always = 1e20;
+			const never = 1e20 - 1e10;
+			const res = binarySearchDouble(always, never, (v) => v >= 1e20 - 5e9);
+			expect(Number.isFinite(res)).toBe(true);
+			// Should be within the original bounds
+			expect(res).toBeGreaterThanOrEqual(Math.min(always, never));
+			expect(res).toBeLessThanOrEqual(Math.max(always, never));
+		});
+	});
 });
 
 describe("binarySearchArray", () => {
