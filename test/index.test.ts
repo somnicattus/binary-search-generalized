@@ -268,50 +268,50 @@ describe("binarySearchArrayLast", () => {
 describe("binarySearchArrayInsertion", () => {
 	it("left insertion index - ascending numbers", () => {
 		const arr = [1, 3, 3, 5];
-		expect(binarySearchArrayInsertionLeft(arr, 0, "asc")).toBe(0);
-		expect(binarySearchArrayInsertionLeft(arr, 1, "asc")).toBe(0);
-		expect(binarySearchArrayInsertionLeft(arr, 2, "asc")).toBe(1);
-		expect(binarySearchArrayInsertionLeft(arr, 3, "asc")).toBe(1);
-		expect(binarySearchArrayInsertionLeft(arr, 4, "asc")).toBe(3);
-		expect(binarySearchArrayInsertionLeft(arr, 5, "asc")).toBe(3);
-		expect(binarySearchArrayInsertionLeft(arr, 6, "asc")).toBe(4);
+		expect(binarySearchArrayInsertionLeft(arr, 0)).toBe(0);
+		expect(binarySearchArrayInsertionLeft(arr, 1)).toBe(0);
+		expect(binarySearchArrayInsertionLeft(arr, 2)).toBe(1);
+		expect(binarySearchArrayInsertionLeft(arr, 3)).toBe(1);
+		expect(binarySearchArrayInsertionLeft(arr, 4)).toBe(3);
+		expect(binarySearchArrayInsertionLeft(arr, 5)).toBe(3);
+		expect(binarySearchArrayInsertionLeft(arr, 6)).toBe(4);
 	});
 
 	it("right insertion index - ascending numbers", () => {
 		const arr = [1, 3, 3, 5];
-		expect(binarySearchArrayInsertionRight(arr, 0, "asc")).toBe(0);
-		expect(binarySearchArrayInsertionRight(arr, 1, "asc")).toBe(1);
-		expect(binarySearchArrayInsertionRight(arr, 2, "asc")).toBe(1);
-		expect(binarySearchArrayInsertionRight(arr, 3, "asc")).toBe(3);
-		expect(binarySearchArrayInsertionRight(arr, 4, "asc")).toBe(3);
-		expect(binarySearchArrayInsertionRight(arr, 5, "asc")).toBe(4);
-		expect(binarySearchArrayInsertionRight(arr, 6, "asc")).toBe(4);
+		expect(binarySearchArrayInsertionRight(arr, 0)).toBe(0);
+		expect(binarySearchArrayInsertionRight(arr, 1)).toBe(1);
+		expect(binarySearchArrayInsertionRight(arr, 2)).toBe(1);
+		expect(binarySearchArrayInsertionRight(arr, 3)).toBe(3);
+		expect(binarySearchArrayInsertionRight(arr, 4)).toBe(3);
+		expect(binarySearchArrayInsertionRight(arr, 5)).toBe(4);
+		expect(binarySearchArrayInsertionRight(arr, 6)).toBe(4);
 	});
 
 	it("left insertion index - descending numbers", () => {
 		const arr = [9, 7, 7, 5, 3];
-		expect(binarySearchArrayInsertionLeft(arr, 10, "desc")).toBe(0);
-		expect(binarySearchArrayInsertionLeft(arr, 9, "desc")).toBe(0);
-		expect(binarySearchArrayInsertionLeft(arr, 8, "desc")).toBe(1);
-		expect(binarySearchArrayInsertionLeft(arr, 7, "desc")).toBe(1);
-		expect(binarySearchArrayInsertionLeft(arr, 6, "desc")).toBe(3);
-		expect(binarySearchArrayInsertionLeft(arr, 5, "desc")).toBe(3);
-		expect(binarySearchArrayInsertionLeft(arr, 4, "desc")).toBe(4);
-		expect(binarySearchArrayInsertionLeft(arr, 3, "desc")).toBe(4);
-		expect(binarySearchArrayInsertionLeft(arr, 2, "desc")).toBe(5);
+		expect(binarySearchArrayInsertionLeft(arr, 10)).toBe(0);
+		expect(binarySearchArrayInsertionLeft(arr, 9)).toBe(0);
+		expect(binarySearchArrayInsertionLeft(arr, 8)).toBe(1);
+		expect(binarySearchArrayInsertionLeft(arr, 7)).toBe(1);
+		expect(binarySearchArrayInsertionLeft(arr, 6)).toBe(3);
+		expect(binarySearchArrayInsertionLeft(arr, 5)).toBe(3);
+		expect(binarySearchArrayInsertionLeft(arr, 4)).toBe(4);
+		expect(binarySearchArrayInsertionLeft(arr, 3)).toBe(4);
+		expect(binarySearchArrayInsertionLeft(arr, 2)).toBe(5);
 	});
 
 	it("right insertion index - descending numbers", () => {
 		const arr = [9, 7, 7, 5, 3];
-		expect(binarySearchArrayInsertionRight(arr, 10, "desc")).toBe(0);
-		expect(binarySearchArrayInsertionRight(arr, 9, "desc")).toBe(1);
-		expect(binarySearchArrayInsertionRight(arr, 8, "desc")).toBe(1);
-		expect(binarySearchArrayInsertionRight(arr, 7, "desc")).toBe(3);
-		expect(binarySearchArrayInsertionRight(arr, 6, "desc")).toBe(3);
-		expect(binarySearchArrayInsertionRight(arr, 5, "desc")).toBe(4);
-		expect(binarySearchArrayInsertionRight(arr, 4, "desc")).toBe(4);
-		expect(binarySearchArrayInsertionRight(arr, 3, "desc")).toBe(5);
-		expect(binarySearchArrayInsertionRight(arr, 2, "desc")).toBe(5);
+		expect(binarySearchArrayInsertionRight(arr, 10)).toBe(0);
+		expect(binarySearchArrayInsertionRight(arr, 9)).toBe(1);
+		expect(binarySearchArrayInsertionRight(arr, 8)).toBe(1);
+		expect(binarySearchArrayInsertionRight(arr, 7)).toBe(3);
+		expect(binarySearchArrayInsertionRight(arr, 6)).toBe(3);
+		expect(binarySearchArrayInsertionRight(arr, 5)).toBe(4);
+		expect(binarySearchArrayInsertionRight(arr, 4)).toBe(4);
+		expect(binarySearchArrayInsertionRight(arr, 3)).toBe(5);
+		expect(binarySearchArrayInsertionRight(arr, 2)).toBe(5);
 	});
 
 	it("single-element arrays require order", () => {
@@ -337,6 +337,45 @@ describe("binarySearchArrayInsertion", () => {
 		expect(binarySearchArrayInsertionRight([5], 5, "desc")).toBe(1);
 		expect(binarySearchArrayInsertionRight([5], 6, "desc")).toBe(0);
 		expect(binarySearchArrayInsertionRight([5], 4, "desc")).toBe(1);
+	});
+
+	it("empty arrays return 0 for insertion helpers", () => {
+		expect(binarySearchArrayInsertionLeft([], 123)).toBe(0);
+		expect(binarySearchArrayInsertionRight([], 123)).toBe(0);
+	});
+
+	it("bigints", () => {
+		const arr = [1n, 3n, 3n, 5n];
+		expect(binarySearchArrayInsertionLeft(arr, 0n)).toBe(0);
+		expect(binarySearchArrayInsertionLeft(arr, 1n)).toBe(0);
+		expect(binarySearchArrayInsertionLeft(arr, 2n)).toBe(1);
+		expect(binarySearchArrayInsertionLeft(arr, 3n)).toBe(1);
+		expect(binarySearchArrayInsertionLeft(arr, 4n)).toBe(3);
+		expect(binarySearchArrayInsertionLeft(arr, 5n)).toBe(3);
+		expect(binarySearchArrayInsertionLeft(arr, 6n)).toBe(4);
+
+		expect(binarySearchArrayInsertionRight(arr, 0n)).toBe(0);
+		expect(binarySearchArrayInsertionRight(arr, 1n)).toBe(1);
+		expect(binarySearchArrayInsertionRight(arr, 2n)).toBe(1);
+		expect(binarySearchArrayInsertionRight(arr, 3n)).toBe(3);
+		expect(binarySearchArrayInsertionRight(arr, 4n)).toBe(3);
+		expect(binarySearchArrayInsertionRight(arr, 5n)).toBe(4);
+		expect(binarySearchArrayInsertionRight(arr, 6n)).toBe(4);
+	});
+
+	it("strings", () => {
+		const arr = ["apple", "banana", "banana", "cherry"];
+		expect(binarySearchArrayInsertionLeft(arr, "date")).toBe(4);
+		expect(binarySearchArrayInsertionLeft(arr, "apple")).toBe(0);
+		expect(binarySearchArrayInsertionLeft(arr, "banana")).toBe(1);
+		expect(binarySearchArrayInsertionLeft(arr, "cherry")).toBe(3);
+		expect(binarySearchArrayInsertionLeft(arr, "blueberry")).toBe(3);
+
+		expect(binarySearchArrayInsertionRight(arr, "date")).toBe(4);
+		expect(binarySearchArrayInsertionRight(arr, "apple")).toBe(1);
+		expect(binarySearchArrayInsertionRight(arr, "banana")).toBe(3);
+		expect(binarySearchArrayInsertionRight(arr, "cherry")).toBe(4);
+		expect(binarySearchArrayInsertionRight(arr, "blueberry")).toBe(3);
 	});
 
 	it("custom comparator objects", () => {
