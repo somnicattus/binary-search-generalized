@@ -6,7 +6,7 @@
  *   0,
  *   100,
  *   (value) => value ** 2 <= 180,
- *   (low, high) => Math.floor((low + high) / 4) * 2, // This always returns an even number as the midpoint
+ *   (low, high) => Math.floor(low + (high - low) / 4) * 2, // Always returns an even number
  *   2, // The minimum difference between two distinct even numbers is 2
  * );
  * // result is 12 (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
@@ -32,7 +32,7 @@ export const binarySearch: {
 	 *   0,
 	 *   100,
 	 *   (value) => value ** 2 <= 180,
-	 *   (low, high) => Math.floor((low + high) / 4) * 2, // This always returns an even number as the midpoint
+	 *   (low, high) => Math.floor(low + (high - low) / 2) * 2, // Always returns an even number
 	 *   2, // The minimum difference between two distinct even numbers is 2
 	 * );
 	 * // result is 12 (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
@@ -213,7 +213,7 @@ export const binarySearchInteger = (
 		alwaysEnd,
 		neverEnd,
 		predicate,
-		(low, high) => Math.floor((low + high) / 2),
+		(low, high) => Math.floor(low + (high - low) / 2),
 		1,
 		safety,
 	);
@@ -295,7 +295,7 @@ export const binarySearchDouble = (
 		alwaysEnd,
 		neverEnd,
 		predicate,
-		(low, high) => (low + high) / 2,
+		(low, high) => low + (high - low) / 2,
 		epsilon ?? getEpsilon(alwaysEnd, neverEnd),
 		safety,
 	);

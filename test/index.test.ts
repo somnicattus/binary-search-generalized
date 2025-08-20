@@ -448,7 +448,7 @@ describe("binarySearch", () => {
 				0,
 				1,
 				(v: number) => v <= 0.5,
-				(l, h) => (l + h) / 2,
+				(l, h) => l + (h - l) / 2,
 				0,
 			),
 		).toThrow("epsilon must be positive");
@@ -472,7 +472,7 @@ describe("binarySearch", () => {
 				0,
 				0.0009,
 				(v: number) => v <= 0.0005,
-				(l, h) => (l + h) / 2,
+				(l, h) => l + (h - l) / 2,
 				0.001,
 			),
 		).toThrow(
@@ -500,7 +500,7 @@ describe("binarySearch", () => {
 				1e20,
 				1e20 - 1e10,
 				(v: number) => v >= 1e20 - 1,
-				(l, h) => (l + h) / 2,
+				(l, h) => l + (h - l) / 2,
 				1e-5,
 			),
 		).toThrow(
@@ -514,7 +514,7 @@ describe("binarySearch", () => {
 				Number.POSITIVE_INFINITY,
 				0,
 				(v) => v > 1,
-				(l, h) => (l + h) / 2,
+				(l, h) => l + (h - l) / 2,
 				1,
 			),
 		).toThrow("alwaysEnd, neverEnd, and epsilon must be finite numbers");
@@ -525,7 +525,7 @@ describe("binarySearch", () => {
 			10,
 			20,
 			(v) => v < 5,
-			(low, high) => Math.floor((low + high) / 2),
+			(low, high) => Math.floor(low + (high - low) / 2),
 			0,
 			"nocheck",
 		);
@@ -560,7 +560,7 @@ describe("binarySearchGeneralized", () => {
 			100,
 			0,
 			(v) => v * v >= 180,
-			(a, b) => Math.floor((a + b) / 2),
+			(a, b) => Math.floor(a + (b - a) / 2),
 			(a, b) => Math.abs(a - b) > 1,
 		);
 		// The minimal integer whose square is >= 180 is 14
@@ -573,7 +573,7 @@ describe("binarySearchGeneralized", () => {
 				0,
 				10,
 				(v: number) => v >= 5,
-				(a, b) => Math.floor((a + b) / 2),
+				(a, b) => Math.floor(a + (b - a) / 2),
 				(a, b) => Math.abs(a - b) > 1,
 			),
 		).toThrow(new RangeError("alwaysEnd must satisfy the condition"));
@@ -584,7 +584,7 @@ describe("binarySearchGeneralized", () => {
 			0,
 			10,
 			(v: number) => v > 5,
-			(a, b) => Math.floor((a + b) / 2),
+			(a, b) => Math.floor(a + (b - a) / 2),
 			(a, b) => Math.abs(a - b) > 1,
 			"nocheck",
 		);
