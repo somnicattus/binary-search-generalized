@@ -9,6 +9,7 @@ import {
 	binarySearchGeneralized,
 	binarySearchArrayInsertionLeft,
 	binarySearchArrayInsertionRight,
+	getEpsilon,
 } from "../src/index.js";
 
 describe("binarySearchInteger", () => {
@@ -546,5 +547,56 @@ describe("binarySearchGeneralized", () => {
 			"nocheck",
 		);
 		expect(Number.isFinite(val)).toBe(true);
+	});
+});
+
+describe("getEpsilon", () => {
+	it("returns 0 when both values are 0", () => {
+		expect(getEpsilon(0, 0)).toBe(0);
+	});
+
+	it("uses the larger magnitude times Number.EPSILON", () => {
+		const e1 = getEpsilon(1, 2);
+		expect(e1).toBeCloseTo(2 * Number.EPSILON, 15);
+
+		const e2 = getEpsilon(-100, 50);
+		expect(e2).toBeCloseTo(100 * Number.EPSILON, 15);
+	});
+
+	it("is symmetric with respect to arguments", () => {
+		const a = 1e5;
+		const b = -1e3;
+		expect(getEpsilon(a, b)).toBe(getEpsilon(b, a));
+	});
+
+	it("handles very large magnitudes", () => {
+		const big = 1e20;
+		expect(getEpsilon(big, 1)).toBeCloseTo(big * Number.EPSILON, 10);
+	});
+
+	it.each([
+		{
+			alwaysEnd: 0,
+			neverEnd: 1,
+			predicate: (v: number) => v < 0.5,
+		},
+		{
+			alwaysEnd: 1e20,
+			neverEnd: 1e46,
+			predicate: (v: number) => v < 1.5e20,
+		},
+		{
+			alwaysEnd: -1,
+			neverEnd: 1e-21,
+			predicate: (v: number) => v < -1e-21,
+		},
+	])("is accepted as a valid input", ({ alwaysEnd, neverEnd, predicate }) => {
+		binarySearchDouble(
+			alwaysEnd,
+			neverEnd,
+			predicate,
+			getEpsilon(alwaysEnd, neverEnd),
+		);
+		expect().pass("binarySearchDouble should not throw");
 	});
 });

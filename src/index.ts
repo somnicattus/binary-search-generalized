@@ -1009,3 +1009,12 @@ export const binarySearchGeneralized = <T>(
 
 	return always;
 };
+
+/**
+ * Calculates the meaningful epsilon value for the range.
+ * @param value1 - The first number.
+ * @param value2 - The second number.
+ * @returns The epsilon value. Equals to `max(|value1|, |value2|) * Number.EPSILON`
+ */
+export const getEpsilon = (value1: number, value2: number): number =>
+	Math.max(Math.abs(value1), Math.abs(value2)) * Number.EPSILON;
