@@ -488,6 +488,11 @@ export const binarySearchArray: {
 };
 
 /**
+ * Alias of {@link binarySearchArray}
+ */
+export const bsFindIndex = binarySearchArray;
+
+/**
  * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
  * @example
  * import { binarySearchArrayLast } from "binary-search-generalized";
@@ -577,6 +582,11 @@ export const binarySearchArrayLast: {
 ): number => {
 	return _binarySearchArrayFindIndex(true, sortedArray, target, compareFn);
 };
+
+/**
+ * Alias of {@link binarySearchArrayLast}
+ */
+export const bsFindLastIndex = binarySearchArrayLast;
 
 /**
  * Performs a binary search on a sorted array and returns the insertion point.
@@ -746,6 +756,11 @@ export const binarySearchArrayInsertionLeft: {
 };
 
 /**
+ * Alias of {@link binarySearchArrayInsertionLeft}
+ */
+export const bsInsertionLeft = binarySearchArrayInsertionLeft;
+
+/**
  * Performs a binary search on a sorted array and returns the insertion point.
  * @example
  * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
@@ -913,6 +928,11 @@ export const binarySearchArrayInsertionRight: {
 		) + 1
 	);
 };
+
+/**
+ * Alias of {@link binarySearchArrayInsertionRight}
+ */
+export const bsInsertionRight = binarySearchArrayInsertionRight;
 
 /**
  * Performs a generalized binary search on a specified range of non‑primitive numeric‑like values.
