@@ -73,9 +73,8 @@ describe("binarySearchBigint", () => {
 	});
 
 	it("should not throw for unsafe parameter check", () => {
-		expect(
-			binarySearchBigint(10n, 20n, (v) => v < 5n, "nocheck"),
-		).toBeDefined();
+		const result = binarySearchBigint(10n, 20n, (v) => v < 5n, "nocheck");
+		expect(result).toBe(10n);
 	});
 });
 
@@ -135,9 +134,8 @@ describe("binarySearchDouble", () => {
 	});
 
 	it("should not throw for unsafe parameter check", () => {
-		expect(
-			binarySearchDouble(10, 20, (v) => v < 5, 1, "nocheck"),
-		).toBeDefined();
+		const result = binarySearchDouble(10, 20, (v) => v < 5, 1, "nocheck");
+		expect(result).toBe(10);
 	});
 });
 
@@ -488,7 +486,7 @@ describe("binarySearch", () => {
 			0,
 			"nocheck",
 		);
-		expect(result).toBeDefined();
+		expect(result).toBe(10);
 	});
 });
 
