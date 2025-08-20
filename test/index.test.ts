@@ -374,6 +374,72 @@ describe("binarySearch", () => {
 		expect(result).toBe(13n);
 	});
 
+	it("throws when epsilon is non-positive (number)", () => {
+		expect(() =>
+			binarySearch(
+				0,
+				1,
+				(v: number) => v <= 0.5,
+				(l, h) => (l + h) / 2,
+				0,
+			),
+		).toThrow("epsilon must be positive");
+	});
+
+	it("throws when epsilon is non-positive (bigint)", () => {
+		expect(() =>
+			binarySearch(
+				0n,
+				10n,
+				(v: bigint) => v <= 5n,
+				(l, h) => (l + h) / 2n,
+				0n,
+			),
+		).toThrow("epsilon must be positive");
+	});
+
+	it("throws when ends are within epsilon range (number)", () => {
+		expect(() =>
+			binarySearch(
+				0,
+				0.0009,
+				(v: number) => v <= 0.0005,
+				(l, h) => (l + h) / 2,
+				0.001,
+			),
+		).toThrow(
+			"alwaysEnd and neverEnd must be different within the epsilon range",
+		);
+	});
+
+	it("throws when ends are within epsilon range (bigint)", () => {
+		expect(() =>
+			binarySearch(
+				0n,
+				9n,
+				(v: bigint) => v <= 5n,
+				(l, h) => (l + h) / 2n,
+				10n,
+			),
+		).toThrow(
+			"alwaysEnd and neverEnd must be different within the epsilon range",
+		);
+	});
+
+	it("throws when epsilon not representable at endpoints' precision.", () => {
+		expect(() =>
+			binarySearch(
+				1e20,
+				1e20 - 1e10,
+				(v: number) => v >= 1e20 - 1,
+				(l, h) => (l + h) / 2,
+				1e-5,
+			),
+		).toThrow(
+			"epsilon must be representable at the precision of alwaysEnd and neverEnd",
+		);
+	});
+
 	it("should not throw for unsafe parameter check", () => {
 		const result = binarySearch(
 			10,
