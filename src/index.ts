@@ -16,7 +16,7 @@
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param epsilon - The maximum acceptable error margin for the search.
- * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
+ * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to check midpoint convergence on every midpoint calls.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
  * @remarks Consider using {@link binarySearchInteger}, {@link binarySearchDouble}, or {@link binarySearchBigint} for specific numeric types, and {@link binarySearchArray} for arrays.
