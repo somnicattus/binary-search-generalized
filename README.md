@@ -4,13 +4,12 @@
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 [![types](https://img.shields.io/badge/types-TypeScript-blue)](./dist/index.d.ts)
 
-Generalized binary search implementation for TypeScript/JavaScript.
-numbers, bigints, sorted arrays (asc/desc, with or without custom comparators), and even non-primitive domains via a pluggable midpoint.
+Generalized binary search implementation for TypeScript/JavaScript: numbers, bigints, sorted arrays (asc/desc; with or without custom comparators), and even non‑primitive domains via a pluggable midpoint.
 
-- Ultra-generalized and customizable binary search implementation that suits any use
-- Precisely controlled API for integers, double-precision floating-point numbers, bigints and arrays
-- Works with ascending and descending automatically
-- ESM-first, TypeScript native, fully documented
+- Ultra-generalized, customizable binary search implementation for any use case
+- Precisely controlled API for integers, double-precision floats, bigints, and arrays
+- Automatically handles both ascending and descending order
+- ESM-first, TypeScript-native, and fully documented
 
 ## Install
 
@@ -53,18 +52,23 @@ binarySearchArray([9, 7, 7, 5, 3], 7); // 1 (descending handled)
 // First/last occurrence with duplicates
 binarySearchArray([1, 2, 2, 2, 3], 2); // 1 (first)
 binarySearchArrayLast([1, 2, 2, 2, 3], 2); // 3 (last)
+// Aliases:
+// bsFindIndex === binarySearchArray
+// bsFindLastIndex === binarySearchArrayLast
 
 // Insertion points
 binarySearchArrayInsertionLeft([1, 3, 3, 5], 3); // 1 (before first 3)
 binarySearchArrayInsertionRight([1, 3, 3, 5], 3); // 3 (after last 3)
-// NOTE: For single-element arrays, pass order ("asc" | "desc") or a comparator.
+// Aliases:
+// bsInsertionLeft === binarySearchArrayInsertionLeft
+// bsInsertionRight === binarySearchArrayInsertionRight
 ```
 
 ## API
 
 ### Numeric
 
-Find a numeric value in a specified range. All functions can search ascending or descending ranges.
+Find a numeric value in a specified range. All functions can search ascending or descending ranges and returns the boundary value on the "always" side.
 
 - `binarySearchInteger(alwaysEnd, neverEnd, predicate, safety?) → number`
   - Integer search with midpoint `floor(low + (high - low) / 2)` and epsilon `1`.
@@ -73,8 +77,8 @@ Find a numeric value in a specified range. All functions can search ascending or
   - Bigint variant with epsilon `1n`.
 - `binarySearchDouble(alwaysEnd, neverEnd, predicate, epsilon?, safety?) → number`
   - Floating search with precision control.
-  - `epsilon` is default to `max(|alwaysEnd|, |neverEnd|) * EPSILON`. `EPSILON` is `2^-52`, which is meaningful precision with IEEE754 double-precision floating-point number representation.
-   `epsilon` must be positive and representable at the magnitude of the endpoints.
+  - When omitted, `epsilon` defaults to `max(|alwaysEnd|, |neverEnd|) * EPSILON` (`EPSILON` is 2^-52).
+  - `epsilon` must be positive and representable at the magnitude of the endpoints.
 - `binarySearch(alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety?) → number | bigint`
   - Generalized to any set of primitive-number `number`/`bigint` with `midpoint(low, high)`.
   - `midpoint` must strictly shrink the interval each loop (return a value between low and high that moves one boundary) to guarantee termination.
@@ -110,7 +114,7 @@ Overloads for `number | bigint | string` or a custom comparator for arbitrary ob
   - Without `compareFn`, all functions assume elements are sorted along JavaScript comparator `>`,  `<` and `=`.
   - With `compareFn`, all functions assume elements are sorted with `compareFn`.
 - Order (asc/desc) is detected automatically for arrays with `length >= 2` when no comparator is provided.
-  - For insertion point against `length = 1`, `order` (`"asc" | "desc"`) or `compareFn` must be specified, or a `RangeError` is thrown.
+  - For insertion helpers and `length = 1`, you must specify `order` (`"asc" | "desc"`) or pass a `compareFn`, otherwise a `RangeError` is thrown.
 
 ## Common pitfalls
 
@@ -142,7 +146,7 @@ import { binarySearchBigint } from "binary-search-generalized";
 const x = binarySearchBigint(100n, 0n, v => (2n ** v) >= (10n ** 21n)); // 70n
 ```
 
-Double-precision:
+Double-precision floats:
 
 ```ts
 import { binarySearchDouble } from "binary-search-generalized";
@@ -199,9 +203,11 @@ import { binarySearchGeneralized } from "binary-search-generalized";
 const found = binarySearchGeneralized(
   new BigNumber('0'),
   new BigNumber('1000000000000000'),
-  v => v.isLessThan('100000000')
-  (a, b) => a.plus(b).dividedBy(2),
-  (a, b) => b.minus(a).isGreaterThan('1'),
+  v => v.isLessThan('100000000'),
+  // Use an integer midpoint to pair with the termination rule below
+  (a, b) => a.plus(b).dividedBy(2).integerValue(BigNumber.ROUND_FLOOR),
+  // Continue while the gap is > 1 to ensure convergence with the midpoint rounding
+  (a, b) => b.minus(a).isGreaterThan(1),
 ); // BigNumber('99999999')
 ```
 
