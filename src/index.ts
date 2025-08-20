@@ -124,6 +124,10 @@ export const binarySearch: {
 	epsilon: T,
 	safety: "check" | "nocheck" = "check",
 ): T => {
+	const alwaysEndIsLower = alwaysEnd < neverEnd;
+	let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
+	let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
+
 	if (safety === "check") {
 		if (!predicate(alwaysEnd)) {
 			throw new RangeError("alwaysEnd must satisfy the condition");
@@ -131,11 +135,22 @@ export const binarySearch: {
 		if (predicate(neverEnd)) {
 			throw new RangeError("neverEnd must not satisfy the condition");
 		}
+		if (epsilon <= 0) {
+			throw new RangeError("epsilon must be positive");
+		}
+		if (high - low < epsilon) {
+			throw new RangeError(
+				"alwaysEnd and neverEnd must be different within the epsilon range",
+			);
+		}
+		if (typeof epsilon === "number") {
+			if (high - epsilon === high || (low as number) + epsilon === low) {
+				throw new RangeError(
+					"epsilon must be representable at the precision of alwaysEnd and neverEnd",
+				);
+			}
+		}
 	}
-
-	const alwaysEndIsLower = alwaysEnd < neverEnd;
-	let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
-	let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
 
 	while (high - low > epsilon) {
 		const middle = midpoint(low, high);
@@ -267,32 +282,6 @@ export const binarySearchDouble = (
 	epsilon: number,
 	safety: "check" | "nocheck" = "check",
 ): number => {
-	if (safety === "check") {
-		if (
-			Number.isFinite(alwaysEnd) === false ||
-			Number.isFinite(neverEnd) === false
-		) {
-			throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
-		}
-		if (epsilon <= 0) {
-			throw new RangeError("epsilon must be positive");
-		}
-		if (Math.abs(alwaysEnd - neverEnd) < epsilon) {
-			throw new RangeError(
-				"alwaysEnd and neverEnd must be different within the epsilon range",
-			);
-		}
-		if (
-			alwaysEnd + epsilon === alwaysEnd ||
-			alwaysEnd - epsilon === alwaysEnd ||
-			neverEnd + epsilon === neverEnd ||
-			neverEnd - epsilon === neverEnd
-		) {
-			throw new RangeError(
-				"epsilon must be representable at the precision of alwaysEnd and neverEnd",
-			);
-		}
-	}
 	return binarySearch(
 		alwaysEnd,
 		neverEnd,
