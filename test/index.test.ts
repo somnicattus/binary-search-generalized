@@ -40,6 +40,14 @@ describe("binarySearchInteger", () => {
 		);
 	});
 
+	it("throws when endpoints are not safe integers in check mode", () => {
+		const unsafe = 2 ** 53; // 9007199254740992 (not safe)
+		const safe = Number.MAX_SAFE_INTEGER; // 9007199254740991 (safe)
+		expect(() =>
+			binarySearchInteger(unsafe, safe, (v: number) => v > 0),
+		).toThrow("alwaysEnd and neverEnd must be safe integers");
+	});
+
 	it("should not throw for unsafe parameter check", () => {
 		expect(binarySearchInteger(10, 20, (v) => v < 5, "nocheck")).toBeDefined();
 	});
