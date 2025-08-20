@@ -1,6 +1,7 @@
 /**
  * Performs a generalized binary search on a specified range of primitive numeric (`number` and `bigint`) values.
  * @example
+ * import { binarySearch } from "binary-search-generalized";
  * const result = binarySearch(
  *   0,
  *   100,
@@ -12,7 +13,7 @@
  * // Note: midpoint must shrink the interval (move a bound each iteration) to guarantee termination.
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param epsilon - The maximum acceptable error margin for the search.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -26,6 +27,7 @@ export declare const binarySearch: {
     /**
      * Performs a generalized binary search on a specified range of primitive numeric values.
      * @example
+     * import { binarySearch } from "binary-search-generalized";
      * const result = binarySearch(
      *   0,
      *   100,
@@ -37,7 +39,7 @@ export declare const binarySearch: {
      * // Note: choose a midpoint that strictly reduces the interval to avoid non-termination.
      * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
      * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
-     * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+     * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
      * @param midpoint - A function that determines the midpoint between two values.
      * @param epsilon - The maximum acceptable error margin for the search.
      * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -52,7 +54,7 @@ export declare const binarySearch: {
      * @returns `true` if the value satisfies the condition, `false` otherwise.
      * @remarks This function should be monotonic within the range.
      */
-    check: (value: number) => boolean, 
+    predicate: (value: number) => boolean, 
     /**
      * A function that determines the midpoint between two values.
      * @param low - The lower bound of the range.
@@ -67,6 +69,7 @@ export declare const binarySearch: {
     /**
      * Performs a generalized binary search on a specified range of primitive numeric values.
      * @example
+     * import { binarySearch } from "binary-search-generalized";
      * const result = binarySearch(
      *   0n,
      *   100n,
@@ -78,7 +81,7 @@ export declare const binarySearch: {
      * // Note: midpoint must move a bound every iteration for termination.
      * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
      * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
-     * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+     * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
      * @param midpoint - A function that determines the midpoint between two values.
      * @param epsilon - The maximum acceptable error margin for the search.
      * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -93,7 +96,7 @@ export declare const binarySearch: {
      * @returns `true` if the value satisfies the condition, `false` otherwise.
      * @remarks This function should be monotonic within the range.
      */
-    check: (value: bigint) => boolean, 
+    predicate: (value: bigint) => boolean, 
     /**
      * A function that determines the midpoint between two values.
      * @param low - The lower bound of the range.
@@ -109,6 +112,7 @@ export declare const binarySearch: {
 /**
  * Performs a binary search on a specified range of integer values.
  * @example
+ * import { binarySearchInteger } from "binary-search-generalized";
  * const result = binarySearchInteger(
  *   0,
  *   100,
@@ -117,7 +121,7 @@ export declare const binarySearch: {
  * // result is 13 (the largest integer whose square is less than or equal to 180; floor(sqrt(180)))
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -130,10 +134,11 @@ export declare const binarySearchInteger: (alwaysEnd: number, neverEnd: number,
  * @returns `true` if the value satisfies the condition, `false` otherwise.
  * @remarks This function should be monotonic within the range.
  */
-check: (value: number) => boolean, safety?: "check" | "nocheck") => number;
+predicate: (value: number) => boolean, safety?: "check" | "nocheck") => number;
 /**
  * Performs a binary search on a specified range of bigint values.
  * @example
+ * import { binarySearchBigint } from "binary-search-generalized";
  * const result = binarySearchBigint(
  *   100n,
  *   0n,
@@ -142,7 +147,7 @@ check: (value: number) => boolean, safety?: "check" | "nocheck") => number;
  * // result is 70n (the smallest integer x such that 2^x is greater than or equal to 10^21; ceil(log2(1e21)))
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -154,10 +159,11 @@ export declare const binarySearchBigint: (alwaysEnd: bigint, neverEnd: bigint,
  * @returns `true` if the value satisfies the condition, `false` otherwise.
  * @remarks This function should be monotonic within the range.
  */
-check: (value: bigint) => boolean, safety?: "check" | "nocheck") => bigint;
+predicate: (value: bigint) => boolean, safety?: "check" | "nocheck") => bigint;
 /**
  * Performs a binary search on a specified range of double-precision floating-point values.
  * @example
+ * import { binarySearchDouble } from "binary-search-generalized";
  * const result = binarySearchDouble(
  *   0,
  *   Math.PI / 2,
@@ -168,7 +174,7 @@ check: (value: bigint) => boolean, safety?: "check" | "nocheck") => bigint;
  * // Note: epsilon must be > 0 and representable at the magnitude of the endpoints.
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param epsilon - The maximum acceptable error margin for the search.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
@@ -181,20 +187,24 @@ export declare const binarySearchDouble: (alwaysEnd: number, neverEnd: number,
  * @returns `true` if the value satisfies the condition, `false` otherwise.
  * @remarks This function should be monotonic within the range.
  */
-check: (value: number) => boolean, epsilon: number, safety?: "check" | "nocheck") => number;
+predicate: (value: number) => boolean, epsilon: number, safety?: "check" | "nocheck") => number;
 /**
  * Performs a binary search on a sorted array.
  * @example
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray(['apple', 'banana', 'cherry', 'date', 'elderberry'], 'cherry');
  * // index will be 2
  * @example
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray([-90, -45, 0, 45, 90], 30);
  * // index will be -1 (not found)
  * @example
  * // Descending arrays are detected automatically (length >= 2)
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray([9, 7, 7, 5, 3], 7);
  * // index will be 1 (first occurrence)
  * @example
+ * import { binarySearchArray } from "binary-search-generalized";
  * const index = binarySearchArray(
  *   [{ id: 1 }, { id: 2 }, { id: 3 }],
  *   { id: 2 },
@@ -214,6 +224,7 @@ export declare const binarySearchArray: {
     /**
      * Performs a binary search on a sorted array.
      * @example
+     * import { binarySearchArray } from "binary-search-generalized";
      * const index = binarySearchArray([-90, -45, 0, 45, 90], 30);
      * // index will be -1 (not found)
      * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -227,6 +238,7 @@ export declare const binarySearchArray: {
     /**
      * Performs a binary search on a sorted array.
      * @example
+     * import { binarySearchArray } from "binary-search-generalized";
      * const index = binarySearchArray([-90n, -45n, 0n, 45n, 90n], 30n);
      * // index will be -1 (not found)
      * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -240,6 +252,7 @@ export declare const binarySearchArray: {
     /**
      * Performs a binary search on a sorted array.
      * @example
+     * import { binarySearchArray } from "binary-search-generalized";
      * const index = binarySearchArray(['apple', 'banana', 'cherry', 'date', 'elderberry'], 'cherry');
      * // index will be 2
      * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -253,6 +266,7 @@ export declare const binarySearchArray: {
     /**
      * Performs a binary search on a sorted array.
      * @example
+     * import { binarySearchArray } from "binary-search-generalized";
      * const index = binarySearchArray(
      *   [{ id: 1 }, { id: 2 }, { id: 3 }],
      *   { id: 2 },
@@ -279,6 +293,7 @@ export declare const binarySearchArray: {
 /**
  * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
  * @example
+ * import { binarySearchArrayLast } from "binary-search-generalized";
  * const index = binarySearchArrayLast(['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry'], 'cherry');
  * // index will be 3
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -294,6 +309,7 @@ export declare const binarySearchArrayLast: {
     /**
      * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
      * @example
+     * import { binarySearchArrayLast } from "binary-search-generalized";
      * const index = binarySearchArrayLast([-90, -45, 0, 45, 90], 30);
      * // index will be -1 (not found)
      * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -307,6 +323,7 @@ export declare const binarySearchArrayLast: {
     /**
      * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
      * @example
+     * import { binarySearchArrayLast } from "binary-search-generalized";
      * const index = binarySearchArrayLast([-90n, -45n, 0n, 45n, 90n], 30n);
      * // index will be -1 (not found)
      * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -320,6 +337,7 @@ export declare const binarySearchArrayLast: {
     /**
      * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
      * @example
+     * import { binarySearchArrayLast } from "binary-search-generalized";
      * const index = binarySearchArrayLast(['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry'], 'cherry');
      * // index will be 3
      * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -333,6 +351,7 @@ export declare const binarySearchArrayLast: {
     /**
      * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
      * @example
+     * import { binarySearchArrayLast } from "binary-search-generalized";
      * const index = binarySearchArrayLast([{ id: 1 }, { id: 2 }, { id: 3 }], { id: 2 }, (a, b) => a.id - b.id);
      * // index will be 1
      * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -355,6 +374,7 @@ export declare const binarySearchArrayLast: {
 /**
  * Performs a binary search on a sorted array and returns the insertion point.
  * @example
+ * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
  * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
  * const insertion = 'cherry';
  * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -364,6 +384,7 @@ export declare const binarySearchArrayLast: {
  * // array and insertedArray will be ['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry']
  * @example
  * // Single-element arrays require explicit order when no comparator is provided
+ * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
  * const i1 = binarySearchArrayInsertionLeft([5], 4, 'asc'); // 0
  * const i2 = binarySearchArrayInsertionLeft([5], 6, 'asc'); // 1
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -382,6 +403,7 @@ export declare const binarySearchArrayInsertionLeft: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
      * const array = [-90, -45, 0, 45, 90];
      * const insertion = 0;
      * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -404,6 +426,7 @@ export declare const binarySearchArrayInsertionLeft: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
      * const array = [-90n, -45n, 0n, 45n, 90n];
      * const insertion = 0n;
      * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -426,6 +449,7 @@ export declare const binarySearchArrayInsertionLeft: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
      * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
      * const insertion = 'cherry';
      * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -448,6 +472,7 @@ export declare const binarySearchArrayInsertionLeft: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
      * const array = [{ id: 1 }, { id: 2 }, { id: 4 }];
      * const insertion = { id: 3 };
      * const index = binarySearchArrayInsertionLeft(array, insertion);
@@ -472,6 +497,7 @@ export declare const binarySearchArrayInsertionLeft: {
 /**
  * Performs a binary search on a sorted array and returns the insertion point.
  * @example
+ * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
  * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
  * const insertion = 'cherry';
  * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -481,6 +507,7 @@ export declare const binarySearchArrayInsertionLeft: {
  * // array and insertedArray will be ['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry']
  * @example
  * // Single-element arrays require explicit order when no comparator is provided
+ * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
  * const j1 = binarySearchArrayInsertionRight([5], 5, 'asc'); // 1
  * const j2 = binarySearchArrayInsertionRight([5], 4, 'asc'); // 0
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
@@ -499,6 +526,7 @@ export declare const binarySearchArrayInsertionRight: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
      * const array = [-90, -45, 0, 45, 90];
      * const insertion = 0;
      * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -521,6 +549,7 @@ export declare const binarySearchArrayInsertionRight: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
      * const array = [-90n, -45n, 0n, 45n, 90n];
      * const insertion = 0n;
      * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -543,6 +572,7 @@ export declare const binarySearchArrayInsertionRight: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
      * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
      * const insertion = 'cherry';
      * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -565,6 +595,7 @@ export declare const binarySearchArrayInsertionRight: {
     /**
      * Performs a binary search on a sorted array and returns the insertion point.
      * @example
+     * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
      * const array = [{ id: 1 }, { id: 2 }, { id: 4 }];
      * const insertion = { id: 3 };
      * const index = binarySearchArrayInsertionRight(array, insertion);
@@ -589,6 +620,7 @@ export declare const binarySearchArrayInsertionRight: {
 /**
  * Performs a generalized binary search on a specified range of non‑primitive numeric‑like values.
  * @example
+ * import { binarySearchGeneralized } from "binary-search-generalized";
  * const target = new Date('1970-01-01T03:00:00Z').getTime();
  * const result = binarySearchGeneralized(
  *   new Date('1970-01-01T00:00:00Z'),
@@ -606,7 +638,7 @@ export declare const binarySearchArrayInsertionRight: {
  * // result will be a Date object representing '1970-01-01T03:00:00Z'
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param shouldContinue - A function that determines whether to continue the search based on the difference between `never` and `always`.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -621,7 +653,7 @@ export declare const binarySearchGeneralized: <T>(alwaysEnd: T, neverEnd: T,
  * @returns `true` if the value satisfies the condition, `false` otherwise.
  * @remarks This function should be monotonic within the range.
  */
-check: (value: T) => boolean, 
+predicate: (value: T) => boolean, 
 /**
  * A function that determines the midpoint between two values.
  * @param always - The value that always satisfies the condition.

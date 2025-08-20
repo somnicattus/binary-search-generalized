@@ -74,18 +74,18 @@ binarySearchArrayInsertionRight([1, 3, 3, 5], 3); // 3 (after last 3)
 
 All functions assume a monotonic predicate across the search range: once the predicate becomes true (or false), it stays that way.
 
-- binarySearchInteger(alwaysEnd, neverEnd, check, safety?) → number
+- binarySearchInteger(alwaysEnd, neverEnd, predicate, safety?) → number
   - Integer search with midpoint floor((low + high)/2). Returns the boundary value.
-  - alwaysEnd must satisfy check; neverEnd must not. Can search ascending or descending ranges.
+  - alwaysEnd must satisfy predicate; neverEnd must not. Can search ascending or descending ranges.
   - Inputs must be safe integers (Number.isSafeInteger) in `safety: "check"` mode; otherwise a RangeError is thrown.
-- binarySearchBigint(alwaysEnd, neverEnd, check, safety?) → bigint
+- binarySearchBigint(alwaysEnd, neverEnd, predicate, safety?) → bigint
   - Bigint variant with midpoint (low + high) / 2n.
-- binarySearchDouble(alwaysEnd, neverEnd, check, epsilon, safety?) → number
+- binarySearchDouble(alwaysEnd, neverEnd, predicate, epsilon, safety?) → number
   - Floating search with precision control. epsilon must be > 0 and representable at the magnitude of the endpoints.
-- binarySearch(alwaysEnd, neverEnd, check, midpoint, epsilon, safety?) → number | bigint
+- binarySearch(alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety?) → number | bigint
   - Low-level primitive-number/generalized midpoint variant for number/bigint ranges.
   - Midpoint must strictly shrink the interval each loop (return a value between low and high that moves one boundary) to guarantee termination.
-- binarySearchGeneralized(alwaysEnd, neverEnd, check, midpoint, shouldContinue, safety?) → T
+- binarySearchGeneralized(alwaysEnd, neverEnd, predicate, midpoint, shouldContinue, safety?) → T
   - Generalized to any type T (e.g., Date). You provide midpoint and a shouldContinue(always, never) loop condition.
 
 ### Array
@@ -113,15 +113,15 @@ All functions assume a monotonic predicate across the search range: once the pre
 
 ### Contract and termination for binarySearch
 
-- Inputs: alwaysEnd (predicate true), neverEnd (predicate false), monotonic check, progress-guaranteeing midpoint, epsilon > 0 (or 1/1n for integer/bigint variants).
+- Inputs: alwaysEnd (predicate true), neverEnd (predicate false), monotonic predicate, progress-guaranteeing midpoint, epsilon > 0 (or 1/1n for integer/bigint variants).
 - Termination: ensure midpoint(low, high) moves one of the bounds every iteration; otherwise the search may not converge.
 
 ## Common pitfalls
 
-- Non‑monotonic predicate: `check` must not flip true/false multiple times across the range. If it’s not monotonic, results are undefined.
+- Non‑monotonic predicate: `predicate` must not flip true/false multiple times across the range. If it’s not monotonic, results are undefined.
 - Midpoint not shrinking: a custom `midpoint` that returns `low` or `high` can cause infinite loops. Ensure it strictly reduces the interval (e.g., for integers use `Math.floor((low + high)/2)` and design your predicate so a bound moves).
-- Epsilon too small or not representable: for doubles, pick an `epsilon` that’s meaningful at the magnitude of the endpoints; values below the local ulp won’t change bounds and will throw in `check` mode.
-- Invalid endpoints: `alwaysEnd` must satisfy `check` and `neverEnd` must not (or vice‑versa for descending); otherwise a RangeError is thrown in `safety: "check"` mode.
+- Epsilon too small or not representable: for doubles, pick an `epsilon` that’s meaningful at the magnitude of the endpoints; values below the local ulp won’t change bounds and will throw in `"check"` mode.
+- Invalid endpoints: `alwaysEnd` must satisfy `predicate` and `neverEnd` must not (or vice‑versa for descending); otherwise a RangeError is thrown in `safety: "check"` mode.
 - Arrays not truly sorted / comparator mismatch: if the array isn’t sorted according to the provided comparator (or natural order), results are undefined. Auto asc/desc detection requires length ≥ 2.
 - Single‑element arrays: for insertion helpers, pass `order` ("asc" | "desc") or a `compareFn`; otherwise a RangeError is thrown.
 - Duplicates: `binarySearchArray` returns the first index; use `binarySearchArrayLast` for the last index. Choose left/right insertion helpers depending on where you want to insert equal values.

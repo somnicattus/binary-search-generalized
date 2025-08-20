@@ -13,7 +13,7 @@
  * // Note: midpoint must shrink the interval (move a bound each iteration) to guarantee termination.
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param epsilon - The maximum acceptable error margin for the search.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -39,7 +39,7 @@ export const binarySearch: {
 	 * // Note: choose a midpoint that strictly reduces the interval to avoid non-termination.
 	 * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
 	 * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
-	 * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
 	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -56,7 +56,7 @@ export const binarySearch: {
 		 * @returns `true` if the value satisfies the condition, `false` otherwise.
 		 * @remarks This function should be monotonic within the range.
 		 */
-		check: (value: number) => boolean,
+		predicate: (value: number) => boolean,
 		/**
 		 * A function that determines the midpoint between two values.
 		 * @param low - The lower bound of the range.
@@ -85,7 +85,7 @@ export const binarySearch: {
 	 * // Note: midpoint must move a bound every iteration for termination.
 	 * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
 	 * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
-	 * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
 	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -102,7 +102,7 @@ export const binarySearch: {
 		 * @returns `true` if the value satisfies the condition, `false` otherwise.
 		 * @remarks This function should be monotonic within the range.
 		 */
-		check: (value: bigint) => boolean,
+		predicate: (value: bigint) => boolean,
 		/**
 		 * A function that determines the midpoint between two values.
 		 * @param low - The lower bound of the range.
@@ -119,16 +119,16 @@ export const binarySearch: {
 } = <T extends number | bigint>(
 	alwaysEnd: T,
 	neverEnd: T,
-	check: (value: T) => boolean,
+	predicate: (value: T) => boolean,
 	midpoint: (low: T, high: T) => T,
 	epsilon: T,
 	safety: "check" | "nocheck" = "check",
 ): T => {
 	if (safety === "check") {
-		if (!check(alwaysEnd)) {
+		if (!predicate(alwaysEnd)) {
 			throw new RangeError("alwaysEnd must satisfy the condition");
 		}
-		if (check(neverEnd)) {
+		if (predicate(neverEnd)) {
 			throw new RangeError("neverEnd must not satisfy the condition");
 		}
 	}
@@ -139,7 +139,7 @@ export const binarySearch: {
 
 	while (high - low > epsilon) {
 		const middle = midpoint(low, high);
-		if (check(middle) === alwaysEndIsLower) low = middle;
+		if (predicate(middle) === alwaysEndIsLower) low = middle;
 		else high = middle;
 	}
 
@@ -158,7 +158,7 @@ export const binarySearch: {
  * // result is 13 (the largest integer whose square is less than or equal to 180; floor(sqrt(180)))
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -173,7 +173,7 @@ export const binarySearchInteger = (
 	 * @returns `true` if the value satisfies the condition, `false` otherwise.
 	 * @remarks This function should be monotonic within the range.
 	 */
-	check: (value: number) => boolean,
+	predicate: (value: number) => boolean,
 	safety: "check" | "nocheck" = "check",
 ) => {
 	if (safety === "check") {
@@ -188,7 +188,7 @@ export const binarySearchInteger = (
 	return binarySearch(
 		alwaysEnd,
 		neverEnd,
-		check,
+		predicate,
 		(low, high) => Math.floor((low + high) / 2),
 		1,
 		safety,
@@ -207,7 +207,7 @@ export const binarySearchInteger = (
  * // result is 70n (the smallest integer x such that 2^x is greater than or equal to 10^21; ceil(log2(1e21)))
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -221,13 +221,13 @@ export const binarySearchBigint = (
 	 * @returns `true` if the value satisfies the condition, `false` otherwise.
 	 * @remarks This function should be monotonic within the range.
 	 */
-	check: (value: bigint) => boolean,
+	predicate: (value: bigint) => boolean,
 	safety: "check" | "nocheck" = "check",
 ): bigint => {
 	return binarySearch(
 		alwaysEnd,
 		neverEnd,
-		check,
+		predicate,
 		(low, high) => (low + high) / 2n,
 		1n,
 		safety,
@@ -248,7 +248,7 @@ export const binarySearchBigint = (
  * // Note: epsilon must be > 0 and representable at the magnitude of the endpoints.
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param epsilon - The maximum acceptable error margin for the search.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
@@ -263,7 +263,7 @@ export const binarySearchDouble = (
 	 * @returns `true` if the value satisfies the condition, `false` otherwise.
 	 * @remarks This function should be monotonic within the range.
 	 */
-	check: (value: number) => boolean,
+	predicate: (value: number) => boolean,
 	epsilon: number,
 	safety: "check" | "nocheck" = "check",
 ): number => {
@@ -296,7 +296,7 @@ export const binarySearchDouble = (
 	return binarySearch(
 		alwaysEnd,
 		neverEnd,
-		check,
+		predicate,
 		(low, high) => (low + high) / 2,
 		epsilon,
 		safety,
@@ -318,33 +318,35 @@ const _binarySearchArrayInsertion = <T>(
 	const neverEnd = findLast ? sortedArray.length - 1 : 0;
 	const notFound = findLast ? -1 : sortedArray.length;
 	const nextToNeverEnd = findLast ? sortedArray.length - 2 : 1;
-	let check: (index: number) => boolean;
+	let predicate: (index: number) => boolean;
 	if (compareFn == null) {
 		// biome-ignore lint/style/noNonNullAssertion: array must have at least two elements
 		const isAsc = sortedArray[0]! < sortedArray[sortedArray.length - 1]!;
 		if (isAsc === findLast) {
 			// biome-ignore lint/style/noNonNullAssertion: index is always valid
-			check = (index: number) => sortedArray[index]! <= target;
+			predicate = (index: number) => sortedArray[index]! <= target;
 		} else {
 			// biome-ignore lint/style/noNonNullAssertion: index is always valid
-			check = (index: number) => sortedArray[index]! >= target;
+			predicate = (index: number) => sortedArray[index]! >= target;
 		}
 	} else {
 		if (findLast) {
-			// biome-ignore lint/style/noNonNullAssertion: index is always valid
-			check = (index: number) => compareFn(sortedArray[index]!, target) <= 0;
+			predicate = (index: number) =>
+				// biome-ignore lint/style/noNonNullAssertion: index is always valid
+				compareFn(sortedArray[index]!, target) <= 0;
 		} else {
-			// biome-ignore lint/style/noNonNullAssertion: index is always valid
-			check = (index: number) => compareFn(sortedArray[index]!, target) >= 0;
+			predicate = (index: number) =>
+				// biome-ignore lint/style/noNonNullAssertion: index is always valid
+				compareFn(sortedArray[index]!, target) >= 0;
 		}
 	}
 
-	const index = binarySearchInteger(alwaysEnd, neverEnd, check, "nocheck");
+	const index = binarySearchInteger(alwaysEnd, neverEnd, predicate, "nocheck");
 
 	// Avoid edge cases (alwaysEnd does not satisfy the condition)
-	if (index === alwaysEnd && !check(alwaysEnd)) return notFound;
+	if (index === alwaysEnd && !predicate(alwaysEnd)) return notFound;
 	// Avoid edge cases (neverEnd satisfies the condition)
-	if (index === nextToNeverEnd && check(neverEnd)) return neverEnd;
+	if (index === nextToNeverEnd && predicate(neverEnd)) return neverEnd;
 
 	return index;
 };
@@ -944,7 +946,7 @@ export const binarySearchArrayInsertionRight: {
  * // result will be a Date object representing '1970-01-01T03:00:00Z'
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
- * @param check - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
+ * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param shouldContinue - A function that determines whether to continue the search based on the difference between `never` and `always`.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
@@ -961,7 +963,7 @@ export const binarySearchGeneralized = <T>(
 	 * @returns `true` if the value satisfies the condition, `false` otherwise.
 	 * @remarks This function should be monotonic within the range.
 	 */
-	check: (value: T) => boolean,
+	predicate: (value: T) => boolean,
 	/**
 	 * A function that determines the midpoint between two values.
 	 * @param always - The value that always satisfies the condition.
@@ -979,10 +981,10 @@ export const binarySearchGeneralized = <T>(
 	safety: "check" | "nocheck" = "check",
 ): T => {
 	if (safety === "check") {
-		if (!check(alwaysEnd)) {
+		if (!predicate(alwaysEnd)) {
 			throw new RangeError("alwaysEnd must satisfy the condition");
 		}
-		if (check(neverEnd)) {
+		if (predicate(neverEnd)) {
 			throw new RangeError("neverEnd must not satisfy the condition");
 		}
 	}
@@ -992,7 +994,7 @@ export const binarySearchGeneralized = <T>(
 
 	while (shouldContinue(always, never)) {
 		const middle = midpoint(always, never);
-		if (check(middle)) always = middle;
+		if (predicate(middle)) always = middle;
 		else never = middle;
 	}
 
