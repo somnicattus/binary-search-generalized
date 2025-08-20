@@ -2,7 +2,7 @@ export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, 
     const alwaysEndIsLower = alwaysEnd < neverEnd;
     let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
     let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
-    if (safety === "check") {
+    if (safety === "check" || safety === "strict") {
         if (!predicate(alwaysEnd)) {
             throw new RangeError("alwaysEnd must satisfy the condition");
         }
@@ -25,6 +25,19 @@ export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, 
                 throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
             }
         }
+    }
+    if (safety === "strict") {
+        while (high - low > epsilon) {
+            const middle = midpoint(low, high);
+            if (middle >= high || middle <= low) {
+                throw new RangeError(`midpoint function did not converge: got ${middle} with ${low} and ${high}`);
+            }
+            if (predicate(middle) === alwaysEndIsLower)
+                low = middle;
+            else
+                high = middle;
+        }
+        return alwaysEndIsLower ? low : high;
     }
     while (high - low > epsilon) {
         const middle = midpoint(low, high);

@@ -42,7 +42,7 @@ export const binarySearch: {
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
+	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to check midpoint convergence on every midpoint calls.
 	 * @returns The boundary value that satisfies the condition.
 	 * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
@@ -68,7 +68,8 @@ export const binarySearch: {
 		 * The maximum acceptable error margin for the search.
 		 */
 		epsilon: number,
-		safety?: "check" | "nocheck",
+		/** @default "check" */
+		safety?: "check" | "nocheck" | "strict",
 	): number;
 	/**
 	 * Performs a generalized binary search on a specified range of primitive numeric values.
@@ -88,7 +89,7 @@ export const binarySearch: {
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
+	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to check midpoint convergence for every midpoint calls.
 	 * @returns The boundary value that satisfies the condition.
 	 * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
@@ -114,7 +115,8 @@ export const binarySearch: {
 		 * The maximum acceptable error margin for the search.
 		 */
 		epsilon: bigint,
-		safety?: "check" | "nocheck",
+		/** @default "check" */
+		safety?: "check" | "nocheck" | "strict",
 	): bigint;
 } = <T extends number | bigint>(
 	alwaysEnd: T,
@@ -122,13 +124,13 @@ export const binarySearch: {
 	predicate: (value: T) => boolean,
 	midpoint: (low: T, high: T) => T,
 	epsilon: T,
-	safety: "check" | "nocheck" = "check",
+	safety: "check" | "nocheck" | "strict" = "check",
 ): T => {
 	const alwaysEndIsLower = alwaysEnd < neverEnd;
 	let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
 	let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
 
-	if (safety === "check") {
+	if (safety === "check" || safety === "strict") {
 		if (!predicate(alwaysEnd)) {
 			throw new RangeError("alwaysEnd must satisfy the condition");
 		}
@@ -159,6 +161,21 @@ export const binarySearch: {
 				);
 			}
 		}
+	}
+
+	if (safety === "strict") {
+		while (high - low > epsilon) {
+			const middle = midpoint(low, high);
+			if (middle >= high || middle <= low) {
+				throw new RangeError(
+					`midpoint function did not converge: got ${middle} with ${low} and ${high}`,
+				);
+			}
+			if (predicate(middle) === alwaysEndIsLower) low = middle;
+			else high = middle;
+		}
+
+		return alwaysEndIsLower ? low : high;
 	}
 
 	while (high - low > epsilon) {
@@ -198,6 +215,7 @@ export const binarySearchInteger = (
 	 * @remarks This function should be monotonic within the range.
 	 */
 	predicate: (value: number) => boolean,
+	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
 ) => {
 	if (safety === "check") {
@@ -246,6 +264,7 @@ export const binarySearchBigint = (
 	 * @remarks This function should be monotonic within the range.
 	 */
 	predicate: (value: bigint) => boolean,
+	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
 ): bigint => {
 	return binarySearch(
@@ -289,6 +308,7 @@ export const binarySearchDouble = (
 	 */
 	predicate: (value: number) => boolean,
 	epsilon?: number,
+	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
 ): number => {
 	return binarySearch(
@@ -993,6 +1013,7 @@ export const binarySearchGeneralized = <T>(
 	 * @returns `true` if the search should continue, `false` otherwise.
 	 */
 	shouldContinue: (always: T, never: T) => boolean,
+	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
 ): T => {
 	if (safety === "check") {

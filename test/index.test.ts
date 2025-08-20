@@ -531,6 +531,56 @@ describe("binarySearch", () => {
 		);
 		expect(result).toBe(10);
 	});
+
+	it("strict: returns correct value with a shrinking midpoint (number)", () => {
+		const result = binarySearch(
+			0,
+			100,
+			(v) => v * v <= 180,
+			(l, h) => Math.floor(l + (h - l) / 2),
+			1,
+			"strict",
+		);
+		expect(result).toBe(13);
+	});
+
+	it("strict: throws when midpoint does not converge (number)", () => {
+		expect(() =>
+			binarySearch(
+				0,
+				100,
+				(v) => v <= 50,
+				(l, _h) => l, // never shrinks
+				1,
+				"strict",
+			),
+		).toThrow(/midpoint function did not converge/);
+	});
+
+	it("strict: returns correct value with a shrinking midpoint (bigint)", () => {
+		const result = binarySearch(
+			0n,
+			100n,
+			(v) => v * v <= 180n,
+			(l, h) => (l + h) / 2n,
+			1n,
+			"strict",
+		);
+		expect(result).toBe(13n);
+	});
+
+	it("strict: throws when midpoint does not converge (bigint)", () => {
+		expect(() =>
+			binarySearch(
+				0n,
+				100n,
+				(v) => v <= 50n,
+				(l, _h) => l, // never shrinks
+				1n,
+				"strict",
+			),
+		).toThrow(/midpoint function did not converge/);
+	});
 });
 
 describe("binarySearchGeneralized", () => {
