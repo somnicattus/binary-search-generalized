@@ -946,22 +946,19 @@ export const bsInsertionRight = binarySearchArrayInsertionRight;
 /**
  * Performs a generalized binary search on a specified range of non‑primitive numeric‑like values.
  * @example
+ * import BigNumber from "bignumber.js";
  * import { binarySearchGeneralized } from "binary-search-generalized";
- * const target = new Date('1970-01-01T03:00:00Z').getTime();
  * const result = binarySearchGeneralized(
- *   new Date('1970-01-01T00:00:00Z'),
- *   new Date('1970-01-02T00:00:00Z'),
- *   (value) => value.getTime() <= target,
- *   // Round midpoint to minute resolution so it pairs with the termination rule below
- *   (always, never) => {
- *     const mid = new Date((always.getTime() + never.getTime()) / 2);
- *     mid.setUTCSeconds(0, 0);
- *     return mid;
- *   },
- *   // Continue while the gap is greater than one minute; ensures convergence with the rounding above
- *   (always, never) => never.getTime() - always.getTime() > 60_000,
+ *   new BigNumber('0'),
+ *   new BigNumber('1000000000000000'), // 1e15
+ *   (value) => value.isLessThan('100000000'), // monotonic predicate
+ *   // Use an integer midpoint so it pairs with the termination rule below
+ *   (always, never) =>
+ *     always.plus(never).dividedBy(2).integerValue(BigNumber.ROUND_FLOOR),
+ *   // Continue while the gap is greater than 1; ensures convergence with the rounding above
+ *   (always, never) => never.minus(always).isGreaterThan(1),
  * );
- * // result will be a Date object representing '1970-01-01T03:00:00Z'
+ * // result will be BigNumber('99999999')
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
