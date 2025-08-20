@@ -6,7 +6,7 @@
  *   0,
  *   100,
  *   (value) => value ** 2 <= 180,
- *   (low, high) => Math.floor((low + high) / 4) * 2, // This always returns an even number as the midpoint
+ *   (low, high) => Math.floor(low + (high - low) / 4) * 2, // Always returns an even number
  *   2, // The minimum difference between two distinct even numbers is 2
  * );
  * // result is 12 (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
@@ -32,7 +32,7 @@ export declare const binarySearch: {
      *   0,
      *   100,
      *   (value) => value ** 2 <= 180,
-     *   (low, high) => Math.floor((low + high) / 4) * 2, // This always returns an even number as the midpoint
+     *   (low, high) => Math.floor(low + (high - low) / 2) * 2, // Always returns an even number
      *   2, // The minimum difference between two distinct even numbers is 2
      * );
      * // result is 12 (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
@@ -175,7 +175,7 @@ predicate: (value: bigint) => boolean, safety?: "check" | "nocheck") => bigint;
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search.
+ * @param epsilon - The maximum acceptable error margin for the search. By default, it is calculated by {@link getEpsilon}.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -187,7 +187,7 @@ export declare const binarySearchDouble: (alwaysEnd: number, neverEnd: number,
  * @returns `true` if the value satisfies the condition, `false` otherwise.
  * @remarks This function should be monotonic within the range.
  */
-predicate: (value: number) => boolean, epsilon: number, safety?: "check" | "nocheck") => number;
+predicate: (value: number) => boolean, epsilon?: number, safety?: "check" | "nocheck") => number;
 /**
  * Performs a binary search on a sorted array.
  * @example
@@ -291,6 +291,15 @@ export declare const binarySearchArray: {
     compareFn: (a: T, b: T) => number): number;
 };
 /**
+ * Alias of {@link binarySearchArray}
+ */
+export declare const bsFindIndex: {
+    (sortedArray: ArrayLike<number>, target: number): number;
+    (sortedArray: ArrayLike<bigint>, target: bigint): number;
+    (sortedArray: ArrayLike<string>, target: string): number;
+    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
+};
+/**
  * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
  * @example
  * import { binarySearchArrayLast } from "binary-search-generalized";
@@ -370,6 +379,15 @@ export declare const binarySearchArrayLast: {
      * @returns A negative number if `a` should be ordered before `b`, a positive number if it should be ordered after, and zero if they are equal.
      */
     compareFn: (a: T, b: T) => number): number;
+};
+/**
+ * Alias of {@link binarySearchArrayLast}
+ */
+export declare const bsFindLastIndex: {
+    <T extends number>(sortedArray: ArrayLike<T>, target: T): number;
+    <T extends bigint>(sortedArray: ArrayLike<T>, target: T): number;
+    <T extends string>(sortedArray: ArrayLike<T>, target: T): number;
+    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
 };
 /**
  * Performs a binary search on a sorted array and returns the insertion point.
@@ -492,6 +510,15 @@ export declare const binarySearchArrayInsertionLeft: {
      * @see {@link binarySearchArray} for finding the exact index of the target.
      * @function
      */
+    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
+};
+/**
+ * Alias of {@link binarySearchArrayInsertionLeft}
+ */
+export declare const bsInsertionLeft: {
+    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
     <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
 };
 /**
@@ -618,24 +645,30 @@ export declare const binarySearchArrayInsertionRight: {
     <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
 };
 /**
+ * Alias of {@link binarySearchArrayInsertionRight}
+ */
+export declare const bsInsertionRight: {
+    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
+    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
+};
+/**
  * Performs a generalized binary search on a specified range of non‑primitive numeric‑like values.
  * @example
+ * import BigNumber from "bignumber.js";
  * import { binarySearchGeneralized } from "binary-search-generalized";
- * const target = new Date('1970-01-01T03:00:00Z').getTime();
  * const result = binarySearchGeneralized(
- *   new Date('1970-01-01T00:00:00Z'),
- *   new Date('1970-01-02T00:00:00Z'),
- *   (value) => value.getTime() <= target,
- *   // Round midpoint to minute resolution so it pairs with the termination rule below
- *   (always, never) => {
- *     const mid = new Date((always.getTime() + never.getTime()) / 2);
- *     mid.setUTCSeconds(0, 0);
- *     return mid;
- *   },
- *   // Continue while the gap is greater than one minute; ensures convergence with the rounding above
- *   (always, never) => never.getTime() - always.getTime() > 60_000,
+ *   new BigNumber('0'),
+ *   new BigNumber('1000000000000000'), // 1e15
+ *   (value) => value.isLessThan('100000000'), // monotonic predicate
+ *   // Use an integer midpoint so it pairs with the termination rule below
+ *   (always, never) =>
+ *     always.plus(never).dividedBy(2).integerValue(BigNumber.ROUND_FLOOR),
+ *   // Continue while the gap is greater than 1; ensures convergence with the rounding above
+ *   (always, never) => never.minus(always).isGreaterThan(1),
  * );
- * // result will be a Date object representing '1970-01-01T03:00:00Z'
+ * // result will be BigNumber('99999999')
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
@@ -668,3 +701,10 @@ midpoint: (always: T, never: T) => T,
  * @returns `true` if the search should continue, `false` otherwise.
  */
 shouldContinue: (always: T, never: T) => boolean, safety?: "check" | "nocheck") => T;
+/**
+ * Calculates the meaningful epsilon value for the range.
+ * @param value1 - The first number.
+ * @param value2 - The second number.
+ * @returns The epsilon value. Equals to `max(|value1|, |value2|) * Number.EPSILON`
+ */
+export declare const getEpsilon: (value1: number, value2: number) => number;

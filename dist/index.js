@@ -1,4 +1,7 @@
 export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety = "check") => {
+    const alwaysEndIsLower = alwaysEnd < neverEnd;
+    let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
+    let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
     if (safety === "check") {
         if (!predicate(alwaysEnd)) {
             throw new RangeError("alwaysEnd must satisfy the condition");
@@ -6,10 +9,23 @@ export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, 
         if (predicate(neverEnd)) {
             throw new RangeError("neverEnd must not satisfy the condition");
         }
+        if (epsilon <= 0) {
+            throw new RangeError("epsilon must be positive");
+        }
+        if (high - low < epsilon) {
+            throw new RangeError("alwaysEnd and neverEnd must be different within the epsilon range");
+        }
+        if (typeof epsilon === "number") {
+            if (!Number.isFinite(epsilon) ||
+                !Number.isFinite(alwaysEnd) ||
+                !Number.isFinite(neverEnd)) {
+                throw new RangeError("alwaysEnd, neverEnd, and epsilon must be finite numbers");
+            }
+            if (high - epsilon === high || low + epsilon === low) {
+                throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
+            }
+        }
     }
-    const alwaysEndIsLower = alwaysEnd < neverEnd;
-    let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
-    let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
     while (high - low > epsilon) {
         const middle = midpoint(low, high);
         if (predicate(middle) === alwaysEndIsLower)
@@ -26,31 +42,13 @@ export const binarySearchInteger = (alwaysEnd, neverEnd, predicate, safety = "ch
             throw new RangeError("alwaysEnd and neverEnd must be safe integers");
         }
     }
-    return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => Math.floor((low + high) / 2), 1, safety);
+    return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => Math.floor(low + (high - low) / 2), 1, safety);
 };
 export const binarySearchBigint = (alwaysEnd, neverEnd, predicate, safety = "check") => {
     return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => (low + high) / 2n, 1n, safety);
 };
 export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon, safety = "check") => {
-    if (safety === "check") {
-        if (Number.isFinite(alwaysEnd) === false ||
-            Number.isFinite(neverEnd) === false) {
-            throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
-        }
-        if (epsilon <= 0) {
-            throw new RangeError("epsilon must be positive");
-        }
-        if (Math.abs(alwaysEnd - neverEnd) < epsilon) {
-            throw new RangeError("alwaysEnd and neverEnd must be different within the epsilon range");
-        }
-        if (alwaysEnd + epsilon === alwaysEnd ||
-            alwaysEnd - epsilon === alwaysEnd ||
-            neverEnd + epsilon === neverEnd ||
-            neverEnd - epsilon === neverEnd) {
-            throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
-        }
-    }
-    return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => (low + high) / 2, epsilon, safety);
+    return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => low + (high - low) / 2, epsilon ?? getEpsilon(alwaysEnd, neverEnd), safety);
 };
 const _binarySearchArrayInsertion = (findLast, sortedArray, target, compareFn) => {
     const alwaysEnd = findLast ? 0 : sortedArray.length - 1;
@@ -105,9 +103,11 @@ const _binarySearchArrayFindIndex = (findLast, sortedArray, target, compareFn) =
 export const binarySearchArray = (sortedArray, target, compareFn) => {
     return _binarySearchArrayFindIndex(false, sortedArray, target, compareFn);
 };
+export const bsFindIndex = binarySearchArray;
 export const binarySearchArrayLast = (sortedArray, target, compareFn) => {
     return _binarySearchArrayFindIndex(true, sortedArray, target, compareFn);
 };
+export const bsFindLastIndex = binarySearchArrayLast;
 export const binarySearchArrayInsertionLeft = (sortedArray, target, order) => {
     if (sortedArray.length === 0)
         return 0;
@@ -125,6 +125,7 @@ export const binarySearchArrayInsertionLeft = (sortedArray, target, order) => {
     }
     return _binarySearchArrayInsertion(false, sortedArray, target, typeof order === "function" ? order : undefined);
 };
+export const bsInsertionLeft = binarySearchArrayInsertionLeft;
 export const binarySearchArrayInsertionRight = (sortedArray, target, order) => {
     if (sortedArray.length === 0)
         return 0;
@@ -142,6 +143,7 @@ export const binarySearchArrayInsertionRight = (sortedArray, target, order) => {
     }
     return (_binarySearchArrayInsertion(true, sortedArray, target, typeof order === "function" ? order : undefined) + 1);
 };
+export const bsInsertionRight = binarySearchArrayInsertionRight;
 export const binarySearchGeneralized = (alwaysEnd, neverEnd, predicate, midpoint, shouldContinue, safety = "check") => {
     if (safety === "check") {
         if (!predicate(alwaysEnd)) {
@@ -162,3 +164,4 @@ export const binarySearchGeneralized = (alwaysEnd, neverEnd, predicate, midpoint
     }
     return always;
 };
+export const getEpsilon = (value1, value2) => Math.max(Math.abs(value1), Math.abs(value2)) * Number.EPSILON;
