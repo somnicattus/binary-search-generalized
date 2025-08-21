@@ -525,7 +525,7 @@ describe("binarySearch", () => {
 			10,
 			20,
 			(v) => v < 5,
-			(low, high) => Math.floor(low + (high - low) / 2),
+			(low, high) => Math.floor((low + high) / 2),
 			0,
 			"nocheck",
 		);

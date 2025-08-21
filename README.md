@@ -71,7 +71,7 @@ binarySearchArrayInsertionRight([1, 3, 3, 5], 3); // 3 (after last 3)
 Find a numeric value in a specified range. All functions can search ascending or descending ranges and returns the boundary value on the "always" side.
 
 - `binarySearchInteger(alwaysEnd, neverEnd, predicate, safety?) → number`
-  - Integer search with midpoint `floor(low + (high - low) / 2)` and epsilon `1`.
+  - Integer search with midpoint `floor(low / 2 + high / 2)` and epsilon `1`.
   - Inputs must be safe integers (`Number.isSafeInteger`).
 - `binarySearchBigint(alwaysEnd, neverEnd, predicate, safety?) → bigint`
   - Bigint variant with epsilon `1n`.
@@ -119,7 +119,7 @@ Overloads for `number | bigint | string` or a custom comparator for arbitrary ob
 ## Common pitfalls
 
 - Non‑monotonic predicate: `predicate` must not flip true/false multiple times across the range. If it’s not monotonic, results are undefined.
-- Midpoint not shrinking: a custom `midpoint` that returns `low` or `high` can cause infinite loops. Ensure it strictly reduces the interval (e.g., for integers use `Math.floor((low + high)/2)` and design your predicate so a bound moves).
+- Midpoint not shrinking: a custom `midpoint` that returns `low` or `high` can cause infinite loops. Ensure it strictly reduces the interval (e.g., for integers use `Math.floor(low / 2 + high / 2)` and design your predicate so a bound moves).
 - Epsilon too small or not representable: pick an `epsilon` that’s meaningful at the magnitude of the endpoints; values below the local ulp won’t change bounds and will throw in `"check"` mode.
 - Invalid endpoints: `alwaysEnd` must satisfy `predicate` and `neverEnd` must not (or vice‑versa for descending); otherwise a `RangeError` is thrown in `"check"` mode.
 - Arrays not truly sorted / comparator mismatch: if the array isn’t sorted according to the provided comparator (or natural order), results are undefined. Auto asc/desc detection requires `length >= 2`.
