@@ -1,5 +1,5 @@
 /**
- * Performs a generalized binary search on a specified range of primitive numeric (`number` and `bigint`) values.
+ * Performs a generalized binary search over a range of primitive numeric values (`number` or `bigint`).
  * @example
  * import { binarySearch } from "binary-search-generalized";
  * const result = binarySearch(
@@ -16,7 +16,7 @@
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param epsilon - The maximum acceptable error margin for the search.
- * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to check midpoint convergence on every midpoint calls.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to verify midpoint convergence on every call.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
  * @remarks Consider using {@link binarySearchInteger}, {@link binarySearchDouble}, or {@link binarySearchBigint} for specific numeric types, and {@link binarySearchArray} for arrays.
@@ -25,24 +25,24 @@
  */
 export const binarySearch: {
 	/**
-	 * Performs a generalized binary search on a specified range of primitive numeric values.
+	 * Performs a generalized binary search over a range of primitive numeric values.
 	 * @example
 	 * import { binarySearch } from "binary-search-generalized";
 	 * const result = binarySearch(
 	 *   0,
 	 *   100,
 	 *   (value) => value ** 2 <= 180,
-	 *   (low, high) => Math.floor(low/2 + high/2) * 2, // Always returns an even number
+	 *   (low, high) => Math.floor(low / 4 + high / 4) * 2, // Always returns an even number
 	 *   2, // The minimum difference between two distinct even numbers is 2
 	 * );
 	 * // result is 12 (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
-	 * // Note: choose a midpoint that strictly reduces the interval to avoid non-termination.
+	 * // Note: choose a midpoint that strictly reduces the interval to avoid non‑termination.
 	 * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
 	 * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to check midpoint convergence on every midpoint calls.
+	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to verify midpoint convergence on every call.
 	 * @returns The boundary value that satisfies the condition.
 	 * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
@@ -72,14 +72,14 @@ export const binarySearch: {
 		safety?: "check" | "nocheck" | "strict",
 	): number;
 	/**
-	 * Performs a generalized binary search on a specified range of primitive numeric values.
+	 * Performs a generalized binary search over a range of primitive numeric values.
 	 * @example
 	 * import { binarySearch } from "binary-search-generalized";
 	 * const result = binarySearch(
 	 *   0n,
 	 *   100n,
 	 *   (value) => value ** 2n <= 180n,
-	 *   (low, high) => (low + high) / 4n * 2n, // This always returns an even number as the midpoint
+	 *   (low, high) => ((low + high) / 4n) * 2n, // Always returns an even number as the midpoint
 	 *   2n, // The minimum difference between two distinct even numbers is 2
 	 * );
 	 * // result is 12n (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
@@ -89,7 +89,7 @@ export const binarySearch: {
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to check midpoint convergence for every midpoint calls.
+	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to verify midpoint convergence on every call.
 	 * @returns The boundary value that satisfies the condition.
 	 * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
@@ -188,7 +188,7 @@ export const binarySearch: {
 };
 
 /**
- * Performs a binary search on a specified range of integer values.
+ * Performs a binary search over a range of integer values.
  * @example
  * import { binarySearchInteger } from "binary-search-generalized";
  * const result = binarySearchInteger(
@@ -200,10 +200,10 @@ export const binarySearch: {
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
- * @remarks In check mode, `alwaysEnd` and `neverEnd` must be safe integers (Number.isSafeInteger).
+ * @remarks In check mode, `alwaysEnd` and `neverEnd` must be safe integers (`Number.isSafeInteger`).
  */
 export const binarySearchInteger = (
 	alwaysEnd: number,
@@ -238,7 +238,7 @@ export const binarySearchInteger = (
 };
 
 /**
- * Performs a binary search on a specified range of bigint values.
+ * Performs a binary search over a range of bigint values.
  * @example
  * import { binarySearchBigint } from "binary-search-generalized";
  * const result = binarySearchBigint(
@@ -250,7 +250,7 @@ export const binarySearchInteger = (
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
  */
@@ -278,7 +278,7 @@ export const binarySearchBigint = (
 };
 
 /**
- * Performs a binary search on a specified range of double-precision floating-point values.
+ * Performs a binary search over a range of double‑precision floating‑point values.
  * @example
  * import { binarySearchDouble } from "binary-search-generalized";
  * const result = binarySearchDouble(
@@ -291,8 +291,8 @@ export const binarySearchBigint = (
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until it reaches the limitation.
- * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
+ * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until reaching the representational limit.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
  */
@@ -308,9 +308,9 @@ export const binarySearchDouble = (
 	predicate: (value: number) => boolean,
 	/**
 	 * The maximum acceptable error margin for the search.
-	 * - a positive number: absolute termination gap; must be representable at the magnitude of the endpoints.
-	 * - "auto" (default): pick a safe epsilon `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52` for normal values and `2^-1074` for subnormal values.
-	 * - `"limit"`: start like `"auto"`, and repeat refinements until it reaches the ultimate limitation of double-precision floating-point values.
+	 * - a positive number: absolute termination gap; must be representable at the scale of the endpoints.
+	 * - "auto" (default): picks a safe epsilon: `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52` for normal values, `2^-1074` for subnormal values.
+	 * - `"limit"`: starts like `"auto"`, then continues refining until reaching the representational limit of double‑precision values.
 	 * @default "auto"
 	 */
 	epsilon: number | "auto" | "limit" = "auto",
@@ -342,7 +342,7 @@ export const binarySearchDouble = (
 
 /**
  * @private
- * @returns The index of the **nearest element**. If not found, returns -1 if findLast is true, and sortedArray.length if findLast is false.
+ * @returns The index of the nearest element. If not found, returns -1 if `findLast` is true, or `sortedArray.length` if `findLast` is false.
  * @remarks Assumes `sortedArray.length >= 2`. Callers handle length 0 or 1.
  */
 const _binarySearchArrayInsertion = <T>(
@@ -448,7 +448,7 @@ const _binarySearchArrayFindIndex = (
  * // index will be 1
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
  * @param target - The target value to find.
- * @param compareFn - A function that compares two values, which was used to sort the array. Returns a negative number if the first value is less than the second, a positive number if it's greater, and zero if they are equal.
+ * @param compareFn - Comparator used to sort the array. Returns a negative number if the first value is less than the second, a positive number if greater, and zero if equal.
  * @template T - The type of the elements in the sorted array.
  * @returns The index of the target value, or -1 if not found.
  * @remarks Returns the smallest index if there are duplicates. If you want the largest index, use {@link binarySearchArrayLast}.
@@ -541,14 +541,14 @@ export const binarySearchArray: {
 export const bsFindIndex = binarySearchArray;
 
 /**
- * Performs a binary search on a sorted array. Returns the largest index if there are duplicates.
+ * Performs a binary search on a sorted array. Returns the largest index when duplicates exist.
  * @example
  * import { binarySearchArrayLast } from "binary-search-generalized";
  * const index = binarySearchArrayLast(['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry'], 'cherry');
  * // index will be 3
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
  * @param target - The target value to find.
- * @param compareFn - A function that compares two values, which was used to sort the array. Returns a negative number if the first value is less than the second, a positive number if it's greater, and zero if they are equal.
+ * @param compareFn - Comparator used to sort the array. Returns a negative number if the first value is less than the second, a positive number if greater, and zero if equal.
  * @template T - The type of the elements in the sorted array.
  * @returns The index of the target value, or -1 if not found.
  * @remarks If you want the smallest index, use {@link binarySearchArray}.
@@ -637,7 +637,7 @@ export const binarySearchArrayLast: {
 export const bsFindLastIndex = binarySearchArrayLast;
 
 /**
- * Performs a binary search on a sorted array and returns the insertion point.
+ * Performs a binary search on a sorted array and returns the left insertion point.
  * @example
  * import { binarySearchArrayInsertionLeft } from "binary-search-generalized";
  * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
@@ -654,12 +654,12 @@ export const bsFindLastIndex = binarySearchArrayLast;
  * const i2 = binarySearchArrayInsertionLeft([5], 6, 'asc'); // 1
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
  * @param target - The target value to find.
- * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
- * @param compareFn - A function that compares two values, which was used to sort the array. Returns a negative number if the first value is less than the second, a positive number if it's greater, and zero if they are equal.
+ * @param order - The order of the sorted array. If omitted, the function infers the order from the first two elements. Required if the array may contain only one element.
+ * @param compareFn - Comparator used to sort the array. Returns a negative number if the first value is less than the second, a positive number if greater, and zero if equal.
  * @template T - The type of the elements in the sorted array.
  * @returns The index at which the target value should be inserted.
- * @throws {RangeError} If the sortedArray has only one element and order is not specified.
- * @remarks If the sortedArray already contains the target value, the insertion point will be before the first occurrence.
+ * @throws {RangeError} If `sortedArray` has a single element and `order` is not specified.
+ * @remarks If `sortedArray` already contains the target value, the insertion point will be before the first occurrence.
  * @see {@link binarySearchArrayInsertionRight} for the right insertion point.
  * @see {@link binarySearchArray} for finding the exact index of the target.
  * @function
@@ -809,7 +809,7 @@ export const binarySearchArrayInsertionLeft: {
 export const bsInsertionLeft = binarySearchArrayInsertionLeft;
 
 /**
- * Performs a binary search on a sorted array and returns the insertion point.
+ * Performs a binary search on a sorted array and returns the right insertion point.
  * @example
  * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
  * const array = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
@@ -826,12 +826,12 @@ export const bsInsertionLeft = binarySearchArrayInsertionLeft;
  * const j2 = binarySearchArrayInsertionRight([5], 4, 'asc'); // 0
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
  * @param target - The target value to find.
- * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
- * @param compareFn - A function that compares two values, which was used to sort the array. Returns a negative number if the first value is less than the second, a positive number if it's greater, and zero if they are equal.
+ * @param order - The order of the sorted array. If omitted, the function infers the order from the first two elements. Required if the array may contain only one element.
+ * @param compareFn - Comparator used to sort the array. Returns a negative number if the first value is less than the second, a positive number if greater, and zero if equal.
  * @template T - The type of the elements in the sorted array.
  * @returns The index at which the target value should be inserted.
- * @throws {RangeError} If the sortedArray has only one element and order is not specified.
- * @remarks If the sortedArray already contains the target value, the insertion point will be after the last occurrence.
+ * @throws {RangeError} If `sortedArray` has a single element and `order` is not specified.
+ * @remarks If `sortedArray` already contains the target value, the insertion point will be after the last occurrence.
  * @see {@link binarySearchArrayInsertionLeft} for the left insertion point.
  * @see {@link binarySearchArrayLast} for finding the exact index of the target.
  * @function
@@ -983,7 +983,7 @@ export const binarySearchArrayInsertionRight: {
 export const bsInsertionRight = binarySearchArrayInsertionRight;
 
 /**
- * Performs a generalized binary search on a specified range of non‑primitive numeric‑like values.
+ * Performs a generalized binary search over a range of non‑primitive numeric‑like values.
  * @example
  * import BigNumber from "bignumber.js";
  * import { binarySearchGeneralized } from "binary-search-generalized";
@@ -1002,8 +1002,8 @@ export const bsInsertionRight = binarySearchArrayInsertionRight;
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
- * @param shouldContinue - A function that determines whether to continue the search based on the difference between `never` and `always`.
- * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
+ * @param shouldContinue - Determines whether to continue searching based on the difference between `never` and `always`.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
  * @remarks Consider using {@link binarySearch} for primitive numeric (`number` and `bigint`) values.
@@ -1057,10 +1057,10 @@ export const binarySearchGeneralized = <T>(
 };
 
 /**
- * Calculates the safe epsilon value for the range of double-precision-floating point numbers.
+ * Calculates a safe epsilon for a range of double‑precision floating‑point numbers.
  * @param value1 - The first number.
  * @param value2 - The second number.
- * @returns The epsilon value. Equals to `floor_to_base_2(max(|value1|, |value2|)) * 2^-52` for normal values and `2^-1074` for subnormal values.
+ * @returns The epsilon value: `floor_to_base_2(max(|value1|, |value2|)) * 2^-52` for normal values, `2^-1074` for subnormal values.
  */
 export const getEpsilon = (value1: number, value2: number): number => {
 	const max = Math.max(Math.abs(value1), Math.abs(value2));
