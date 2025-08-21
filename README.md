@@ -4,7 +4,7 @@
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 [![types](https://img.shields.io/badge/types-TypeScript-blue)](./dist/index.d.ts)
 
-Generalized binary search implementation for TypeScript/JavaScript: numbers, bigints, sorted arrays (asc/desc; with or without custom comparators), and even non‑primitive domains via a pluggable midpoint.
+Generalized binary search implementation for TypeScript/JavaScript: numbers, bigints, sorted arrays, and even non‑primitive domains via a pluggable midpoint.
 
 - Ultra-generalized, customizable binary search implementation for any use case
 - Precisely controlled API for integers, double-precision floats, bigints, and arrays
