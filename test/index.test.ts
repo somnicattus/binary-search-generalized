@@ -691,7 +691,7 @@ describe("getEpsilon", () => {
 		},
 		{
 			value1: Number.MAX_VALUE,
-			value2: -1,
+			value2: Number.MIN_VALUE,
 			expected: 2 ** 1023 * Number.EPSILON,
 		},
 	])(
