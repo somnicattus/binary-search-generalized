@@ -61,17 +61,24 @@ export const binarySearchBigint = (alwaysEnd, neverEnd, predicate, safety = "che
     return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => (low + high) / 2n, 1n, safety);
 };
 export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "auto", safety = "check") => {
-    const eps = epsilon === "auto" || epsilon === "limit"
-        ? getEpsilon(alwaysEnd, neverEnd)
-        : epsilon;
-    const result = binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => low / 2 + high / 2, eps, safety);
     if (epsilon === "limit") {
-        const nextNeverEnd = alwaysEnd < neverEnd ? result + eps : result - eps;
-        const nextEps = getEpsilon(result, nextNeverEnd);
-        return nextEps === eps
-            ? result
-            : binarySearchDouble(result, nextNeverEnd, predicate, "limit", safety);
+        const alwaysEndIsLower = alwaysEnd < neverEnd;
+        let nextAlways = alwaysEnd;
+        let nextNever = neverEnd;
+        let nextEps = getEpsilon(nextAlways, nextNever);
+        while (true) {
+            nextAlways = binarySearch(nextAlways, nextNever, predicate, (low, high) => low / 2 + high / 2, nextEps, safety);
+            nextNever = alwaysEndIsLower
+                ? nextAlways + nextEps
+                : nextAlways - nextEps;
+            const formerEps = nextEps;
+            nextEps = getEpsilon(nextAlways, nextNever);
+            if (nextEps === formerEps)
+                return nextAlways;
+        }
     }
+    const eps = epsilon === "auto" ? getEpsilon(alwaysEnd, neverEnd) : epsilon;
+    const result = binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => low / 2 + high / 2, eps, safety);
     return result;
 };
 const _binarySearchArrayInsertion = (findLast, sortedArray, target, compareFn) => {

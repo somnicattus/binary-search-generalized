@@ -194,7 +194,7 @@ describe("binarySearchDouble", () => {
 		const always = -Number.MAX_VALUE; // ~= 2 ** 1024
 		const never = Number.MAX_VALUE;
 		const pred = (v: number) => v <= Number.MIN_VALUE; // 2 ** -1074
-		// (1024 + 1074) / 52 = 40.3... recursive calls expected
+		// (1024 + 1074) / 52 = 40.3... calls expected
 		const max = binarySearchDouble(always, never, pred, "limit");
 		expect(max).toBe(Number.MIN_VALUE);
 	});

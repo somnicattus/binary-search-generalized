@@ -317,10 +317,30 @@ export const binarySearchDouble = (
 	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
 ): number => {
-	const eps =
-		epsilon === "auto" || epsilon === "limit"
-			? getEpsilon(alwaysEnd, neverEnd)
-			: epsilon;
+	if (epsilon === "limit") {
+		const alwaysEndIsLower = alwaysEnd < neverEnd;
+		let nextAlways = alwaysEnd;
+		let nextNever = neverEnd;
+		let nextEps = getEpsilon(nextAlways, nextNever);
+		while (true) {
+			nextAlways = binarySearch(
+				nextAlways,
+				nextNever,
+				predicate,
+				(low, high) => low / 2 + high / 2,
+				nextEps,
+				safety,
+			);
+			nextNever = alwaysEndIsLower
+				? nextAlways + nextEps
+				: nextAlways - nextEps;
+			const formerEps = nextEps;
+			nextEps = getEpsilon(nextAlways, nextNever);
+			if (nextEps === formerEps) return nextAlways;
+		}
+	}
+
+	const eps = epsilon === "auto" ? getEpsilon(alwaysEnd, neverEnd) : epsilon;
 	const result = binarySearch(
 		alwaysEnd,
 		neverEnd,
@@ -329,13 +349,6 @@ export const binarySearchDouble = (
 		eps,
 		safety,
 	);
-	if (epsilon === "limit") {
-		const nextNeverEnd = alwaysEnd < neverEnd ? result + eps : result - eps;
-		const nextEps = getEpsilon(result, nextNeverEnd);
-		return nextEps === eps
-			? result // ultimate safe boundary found
-			: binarySearchDouble(result, nextNeverEnd, predicate, "limit", safety); // continue refinement
-	}
 
 	return result;
 };
