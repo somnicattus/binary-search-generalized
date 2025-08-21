@@ -291,7 +291,7 @@ export const binarySearchBigint = (
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until it reaches the safe limitation.
+ * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until it reaches the limitation.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -309,8 +309,8 @@ export const binarySearchDouble = (
 	/**
 	 * The maximum acceptable error margin for the search.
 	 * - a positive number: absolute termination gap; must be representable at the magnitude of the endpoints.
-	 * - "auto" (default): pick a safe epsilon `max(|alwaysEnd|, |neverEnd|) * 2^-52` for normal values and `2^-1074` for subnormal values.
-	 * - `"limit"`: start like `"auto"`, and repeat refinements until it reaches the safe limitation.
+	 * - "auto" (default): pick a safe epsilon `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52` for normal values and `2^-1074` for subnormal values.
+	 * - `"limit"`: start like `"auto"`, and repeat refinements until it reaches the ultimate limitation of double-precision floating-point values.
 	 * @default "auto"
 	 */
 	epsilon: number | "auto" | "limit" = "auto",
@@ -1060,8 +1060,13 @@ export const binarySearchGeneralized = <T>(
  * Calculates the safe epsilon value for the range of double-precision-floating point numbers.
  * @param value1 - The first number.
  * @param value2 - The second number.
- * @returns The epsilon value. Equals to `max(|value1|, |value2|) * 2^-52` for normal values and `2^-1074` for subnormal values.
+ * @returns The epsilon value. Equals to `floor_to_base_2(max(|value1|, |value2|)) * 2^-52` for normal values and `2^-1074` for subnormal values.
  */
-export const getEpsilon = (value1: number, value2: number): number =>
-	Math.max(Math.abs(value1), Math.abs(value2)) * Number.EPSILON ||
-	Number.MIN_VALUE;
+export const getEpsilon = (value1: number, value2: number): number => {
+	const max = Math.max(Math.abs(value1), Math.abs(value2));
+	if (max < 2 ** -1022) return Number.MIN_VALUE;
+	const view = new DataView(new ArrayBuffer(8));
+	view.setFloat64(0, max);
+	const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023 - 52;
+	return 2 ** exponent;
+};

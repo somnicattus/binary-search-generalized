@@ -182,7 +182,7 @@ safety?: "check" | "nocheck") => bigint;
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until it reaches the safe limitation.
+ * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until it reaches the limitation.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -198,8 +198,8 @@ predicate: (value: number) => boolean,
 /**
  * The maximum acceptable error margin for the search.
  * - a positive number: absolute termination gap; must be representable at the magnitude of the endpoints.
- * - "auto" (default): pick a safe epsilon `max(|alwaysEnd|, |neverEnd|) * 2^-52` for normal values and `2^-1074` for subnormal values.
- * - `"limit"`: start like `"auto"`, and repeat refinements until it reaches the safe limitation.
+ * - "auto" (default): pick a safe epsilon `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52` for normal values and `2^-1074` for subnormal values.
+ * - `"limit"`: start like `"auto"`, and repeat refinements until it reaches the ultimate limitation of double-precision floating-point values.
  * @default "auto"
  */
 epsilon?: number | "auto" | "limit", 
@@ -724,6 +724,6 @@ safety?: "check" | "nocheck") => T;
  * Calculates the safe epsilon value for the range of double-precision-floating point numbers.
  * @param value1 - The first number.
  * @param value2 - The second number.
- * @returns The epsilon value. Equals to `max(|value1|, |value2|) * 2^-52` for normal values and `2^-1074` for subnormal values.
+ * @returns The epsilon value. Equals to `floor_to_base_2(max(|value1|, |value2|)) * 2^-52` for normal values and `2^-1074` for subnormal values.
  */
 export declare const getEpsilon: (value1: number, value2: number) => number;

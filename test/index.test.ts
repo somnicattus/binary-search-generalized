@@ -137,7 +137,44 @@ describe("binarySearchDouble", () => {
 		expect(result).toBe(10);
 	});
 
-	it("epsilon: 'limit' performs repeated refinements in double-precision floating-point values (ascending)", () => {
+	it("uses getEpsilon(alwaysEnd, neverEnd) by default - ascending", () => {
+		const always = 0;
+		const never = 10;
+		const pred = (v: number) => v <= 7.3;
+		const withDefault = binarySearchDouble(always, never, pred);
+		const eps = getEpsilon(always, never);
+		const withExplicit = binarySearchDouble(always, never, pred, eps);
+		expect(withDefault).toBe(withExplicit);
+	});
+
+	it("uses getEpsilon(alwaysEnd, neverEnd) by default - descending", () => {
+		const always = 10;
+		const never = 0;
+		const pred = (v: number) => v >= 7.3;
+		const withDefault = binarySearchDouble(always, never, pred);
+		const eps = getEpsilon(always, never);
+		const withExplicit = binarySearchDouble(always, never, pred, eps);
+		expect(withDefault).toBe(withExplicit);
+	});
+
+	it("works for very large magnitudes without passing epsilon", () => {
+		const always = 1e20;
+		const never = 1e20 - 1e10;
+		const res = binarySearchDouble(always, never, (v) => v >= 1e20 - 5e9);
+		expect(Number.isFinite(res)).toBe(true);
+		// Should be within the original bounds
+		expect(res).toBeGreaterThanOrEqual(Math.min(always, never));
+		expect(res).toBeLessThanOrEqual(Math.max(always, never));
+	});
+
+	it("works for very small magnitudes (subnormal values) without epsilon", () => {
+		const always = -Number.MIN_VALUE;
+		const never = Number.MIN_VALUE * 64;
+		const res = binarySearchDouble(always, never, (v) => v <= 0);
+		expect(res).toBe(0);
+	});
+
+	it("epsilon: 'limit' performs ultimate refinements in double-precision floating-point values (ascending)", () => {
 		const always = -Number.MAX_VALUE;
 		const never = Number.MAX_VALUE;
 		const pred = (v: number) => v <= 123.456;
@@ -145,7 +182,7 @@ describe("binarySearchDouble", () => {
 		expect(limit).toBe(123.456);
 	});
 
-	it("epsilon: 'limit' performs repeated refinements in double-precision floating-point values (descending)", () => {
+	it("epsilon: 'limit' performs ultimate refinements in double-precision floating-point values (descending)", () => {
 		const always = Number.MAX_VALUE;
 		const never = -Number.MAX_VALUE;
 		const pred = (v: number) => v >= 123.456;
@@ -153,43 +190,13 @@ describe("binarySearchDouble", () => {
 		expect(result).toBe(123.456);
 	});
 
-	describe("default epsilon (omitted)", () => {
-		it("uses getEpsilon(alwaysEnd, neverEnd) by default - ascending", () => {
-			const always = 0;
-			const never = 10;
-			const pred = (v: number) => v <= 7.3;
-			const withDefault = binarySearchDouble(always, never, pred);
-			const eps = getEpsilon(always, never);
-			const withExplicit = binarySearchDouble(always, never, pred, eps);
-			expect(withDefault).toBe(withExplicit);
-		});
-
-		it("uses getEpsilon(alwaysEnd, neverEnd) by default - descending", () => {
-			const always = 10;
-			const never = 0;
-			const pred = (v: number) => v >= 7.3;
-			const withDefault = binarySearchDouble(always, never, pred);
-			const eps = getEpsilon(always, never);
-			const withExplicit = binarySearchDouble(always, never, pred, eps);
-			expect(withDefault).toBe(withExplicit);
-		});
-
-		it("works for very large magnitudes without passing epsilon", () => {
-			const always = 1e20;
-			const never = 1e20 - 1e10;
-			const res = binarySearchDouble(always, never, (v) => v >= 1e20 - 5e9);
-			expect(Number.isFinite(res)).toBe(true);
-			// Should be within the original bounds
-			expect(res).toBeGreaterThanOrEqual(Math.min(always, never));
-			expect(res).toBeLessThanOrEqual(Math.max(always, never));
-		});
-
-		it("works for very small magnitudes (subnormal values) without epsilon", () => {
-			const always = -Number.MIN_VALUE;
-			const never = Number.MIN_VALUE * 64;
-			const res = binarySearchDouble(always, never, (v) => v <= 0);
-			expect(res).toBe(0);
-		});
+	it("epsilon: 'limit' performs maximum possible refinements for double-precision floating-point values", () => {
+		const always = -Number.MAX_VALUE; // ~= 2 ** 1024
+		const never = Number.MAX_VALUE;
+		const pred = (v: number) => v <= Number.MIN_VALUE; // 2 ** -1074
+		// (1024 + 1074) / 52 = 40.3... recursive calls expected
+		const max = binarySearchDouble(always, never, pred, "limit");
+		expect(max).toBe(Number.MIN_VALUE);
 	});
 });
 
@@ -666,13 +673,34 @@ describe("binarySearchGeneralized", () => {
 });
 
 describe("getEpsilon", () => {
-	it("uses the larger magnitude times Number.EPSILON", () => {
-		const e1 = getEpsilon(1, 2);
-		expect(e1).toBeCloseTo(2 * Number.EPSILON, 15);
-
-		const e2 = getEpsilon(-100, 50);
-		expect(e2).toBeCloseTo(100 * Number.EPSILON, 15);
-	});
+	it.each([
+		{
+			value1: 1,
+			value2: 2,
+			expected: 2 * Number.EPSILON,
+		},
+		{
+			value1: -100,
+			value2: 12,
+			expected: 64 * Number.EPSILON,
+		},
+		{
+			value1: 1 - Number.EPSILON,
+			value2: 0.1,
+			expected: Number.EPSILON / 2,
+		},
+		{
+			value1: Number.MAX_VALUE,
+			value2: -1,
+			expected: 2 ** 1023 * Number.EPSILON,
+		},
+	])(
+		"uses the larger magnitude (floor to base 2) times Number.EPSILON for $value1 and $value2",
+		({ value1, value2, expected }) => {
+			const e1 = getEpsilon(value1, value2);
+			expect(e1).toBe(expected);
+		},
+	);
 
 	it("returns Number.MIN_VALUE for subnormal values", () => {
 		expect(getEpsilon(-(2 ** -1024), 2 ** -1025)).toBe(Number.MIN_VALUE);

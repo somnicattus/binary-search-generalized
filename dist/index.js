@@ -188,5 +188,12 @@ export const binarySearchGeneralized = (alwaysEnd, neverEnd, predicate, midpoint
     }
     return always;
 };
-export const getEpsilon = (value1, value2) => Math.max(Math.abs(value1), Math.abs(value2)) * Number.EPSILON ||
-    Number.MIN_VALUE;
+export const getEpsilon = (value1, value2) => {
+    const max = Math.max(Math.abs(value1), Math.abs(value2));
+    if (max < 2 ** -1022)
+        return Number.MIN_VALUE;
+    const view = new DataView(new ArrayBuffer(8));
+    view.setFloat64(0, max);
+    const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023 - 52;
+    return 2 ** exponent;
+};
