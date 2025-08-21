@@ -55,13 +55,24 @@ export const binarySearchInteger = (alwaysEnd, neverEnd, predicate, safety = "ch
             throw new RangeError("alwaysEnd and neverEnd must be safe integers");
         }
     }
-    return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => Math.floor(low + (high - low) / 2), 1, safety);
+    return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => Math.floor(low / 2 + high / 2), 1, safety);
 };
 export const binarySearchBigint = (alwaysEnd, neverEnd, predicate, safety = "check") => {
     return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => (low + high) / 2n, 1n, safety);
 };
-export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon, safety = "check") => {
-    return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => low + (high - low) / 2, epsilon ?? getEpsilon(alwaysEnd, neverEnd), safety);
+export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "auto", safety = "check") => {
+    const eps = epsilon === "auto" || epsilon === "limit"
+        ? getEpsilon(alwaysEnd, neverEnd)
+        : epsilon;
+    const result = binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => low / 2 + high / 2, eps, safety);
+    if (epsilon === "limit") {
+        const nextNeverEnd = alwaysEnd < neverEnd ? result + eps : result - eps;
+        const nextEps = getEpsilon(result, nextNeverEnd);
+        return nextEps === eps
+            ? result
+            : binarySearchDouble(result, nextNeverEnd, predicate, "limit", safety);
+    }
+    return result;
 };
 const _binarySearchArrayInsertion = (findLast, sortedArray, target, compareFn) => {
     const alwaysEnd = findLast ? 0 : sortedArray.length - 1;
@@ -177,4 +188,5 @@ export const binarySearchGeneralized = (alwaysEnd, neverEnd, predicate, midpoint
     }
     return always;
 };
-export const getEpsilon = (value1, value2) => Math.max(Math.abs(value1), Math.abs(value2)) * Number.EPSILON;
+export const getEpsilon = (value1, value2) => Math.max(Math.abs(value1), Math.abs(value2)) * Number.EPSILON ||
+    Number.MIN_VALUE;

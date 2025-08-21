@@ -6,7 +6,7 @@
  *   0,
  *   100,
  *   (value) => value ** 2 <= 180,
- *   (low, high) => Math.floor(low + (high - low) / 4) * 2, // Always returns an even number
+ *   (low, high) => Math.floor(low / 4 + high / 4) * 2, // Always returns an even number
  *   2, // The minimum difference between two distinct even numbers is 2
  * );
  * // result is 12 (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
@@ -32,7 +32,7 @@ export declare const binarySearch: {
      *   0,
      *   100,
      *   (value) => value ** 2 <= 180,
-     *   (low, high) => Math.floor(low + (high - low) / 2) * 2, // Always returns an even number
+     *   (low, high) => Math.floor(low/2 + high/2) * 2, // Always returns an even number
      *   2, // The minimum difference between two distinct even numbers is 2
      * );
      * // result is 12 (the largest even number whose square is less than or equal to 180; floor_to_even(sqrt(180)))
@@ -179,11 +179,10 @@ safety?: "check" | "nocheck") => bigint;
  *   0.0005,
  * );
  * // result will be in range π/6 - 0.0005 <= result < π/6 (close to the largest angle whose sine is less than or equal to 0.5; arcsin(0.5))
- * // Note: epsilon must be > 0 and representable at the magnitude of the endpoints.
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search. By default, it is calculated by {@link getEpsilon}.
+ * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until it reaches the safe limitation.
  * @param safety - A string literal that determines whether to perform parameter checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -195,7 +194,15 @@ export declare const binarySearchDouble: (alwaysEnd: number, neverEnd: number,
  * @returns `true` if the value satisfies the condition, `false` otherwise.
  * @remarks This function should be monotonic within the range.
  */
-predicate: (value: number) => boolean, epsilon?: number, 
+predicate: (value: number) => boolean, 
+/**
+ * The maximum acceptable error margin for the search.
+ * - a positive number: absolute termination gap; must be representable at the magnitude of the endpoints.
+ * - "auto" (default): pick a safe epsilon `max(|alwaysEnd|, |neverEnd|) * 2^-52` for normal values and `2^-1074` for subnormal values.
+ * - `"limit"`: start like `"auto"`, and repeat refinements until it reaches the safe limitation.
+ * @default "auto"
+ */
+epsilon?: number | "auto" | "limit", 
 /** @default "check" */
 safety?: "check" | "nocheck") => number;
 /**
@@ -714,9 +721,9 @@ shouldContinue: (always: T, never: T) => boolean,
 /** @default "check" */
 safety?: "check" | "nocheck") => T;
 /**
- * Calculates the meaningful epsilon value for the range.
+ * Calculates the safe epsilon value for the range of double-precision-floating point numbers.
  * @param value1 - The first number.
  * @param value2 - The second number.
- * @returns The epsilon value. Equals to `max(|value1|, |value2|) * Number.EPSILON`
+ * @returns The epsilon value. Equals to `max(|value1|, |value2|) * 2^-52` for normal values and `2^-1074` for subnormal values.
  */
 export declare const getEpsilon: (value1: number, value2: number) => number;

@@ -77,8 +77,12 @@ Find a numeric value in a specified range. All functions can search ascending or
   - Bigint variant with epsilon `1n`.
 - `binarySearchDouble(alwaysEnd, neverEnd, predicate, epsilon?, safety?) → number`
   - Floating search with precision control.
-  - When omitted, `epsilon` defaults to `max(|alwaysEnd|, |neverEnd|) * EPSILON` (`EPSILON` is 2^-52).
-  - `epsilon` must be positive and representable at the magnitude of the endpoints.
+  - `epsilon` can be:
+    - a positive number: absolute termination gap; must be representable at the magnitude of the endpoints
+    - "auto" (default): pick a safe epsilon:
+      - Normal values: `max(|alwaysEnd|, |neverEnd|) * 2^-52`
+      - Subnormal values (|x| < 2^-1022): `2^-1074`
+    - "limit": start like "auto", and perform repeated refinements until it reaches the safe limitation.
 - `binarySearch(alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety?) → number | bigint`
   - Generalized to any set of primitive-number `number`/`bigint` with `midpoint(low, high)`.
   - `midpoint` must strictly shrink the interval each loop (return a value between low and high that moves one boundary) to guarantee termination.
