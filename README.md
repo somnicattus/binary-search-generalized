@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/binary-search-generalized.svg?color=blue)](https://www.npmjs.com/package/binary-search-generalized)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 [![types](https://img.shields.io/badge/types-TypeScript-blue)](./dist/index.d.ts)
+[![codecov](https://codecov.io/gh/somnicattus/binary-search-generalized/branch/master/graph/badge.svg)](https://codecov.io/gh/somnicattus/binary-search-generalized)
 
 Generalized binary search for TypeScript/JavaScript: numbers, bigints, sorted arrays, and even non‑primitive domains via a pluggable midpoint.
 
