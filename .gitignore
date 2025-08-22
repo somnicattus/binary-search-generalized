@@ -1,6 +1,9 @@
 # dependencies
 node_modules
 
+# coverage output
+coverage/
+
 # package distribution files
 *.tgz
 
