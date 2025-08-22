@@ -9,8 +9,10 @@
 		"node": ">=20"
 	},
 	"exports": {
+		".": {
 		"types": "./dist/index.d.ts",
 		"default": "./dist/index.js"
+		}
 	},
 	"files": ["dist"],
 	"license": "MIT",
