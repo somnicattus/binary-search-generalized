@@ -285,6 +285,34 @@ export const binarySearchBigint = (
 	);
 };
 
+const view = new DataView(new ArrayBuffer(8));
+const getExponent = (value: number): number => {
+	view.setFloat64(0, value);
+	return ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
+};
+
+const midpointDouble = (value1: number, value2: number): number => {
+	const exponent1 = getExponent(value1);
+	const exponent2 = getExponent(value2);
+	const diff = exponent2 - exponent1;
+	if (Math.abs(diff) <= 1) return value1 / 2 + value2 / 2;
+	return 2 ** (exponent1 + diff / 2);
+};
+
+const shouldContinueDouble = (low: number, high: number): boolean => {
+	const max = Math.max(Math.abs(low), Math.abs(high));
+	const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
+	const diff = Math.abs(high - low);
+	return diff > ulp;
+};
+
+const shouldContinueDoubleInverted = (high: number, low: number): boolean => {
+	const max = Math.max(Math.abs(low), Math.abs(high));
+	const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
+	const diff = Math.abs(high - low);
+	return diff > ulp;
+};
+
 /**
  * Performs a binary search over a range of double‑precision floating‑point values.
  * @example
@@ -299,7 +327,7 @@ export const binarySearchBigint = (
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until reaching the representational limit.
+ * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), use the limit precision of double-precision floating-point values.
  * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -317,47 +345,53 @@ export const binarySearchDouble = (
 	/**
 	 * The maximum acceptable error margin for the search.
 	 * - a positive number: absolute termination gap; must be representable at the scale of the endpoints.
-	 * - "auto" (default): picks a safe epsilon: `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52` for normal values, `2^-1074` for subnormal values.
-	 * - `"limit"`: starts like `"auto"`, then continues refining until reaching the representational limit of double‑precision values.
+	 * - "auto" (default): the limit precision of double‑precision floating‑point values.
 	 * @default "auto"
 	 */
-	epsilon: number | "auto" | "limit" = "auto",
+	epsilon: number | "auto" = "auto",
 	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
 ): number => {
-	if (epsilon === "limit") {
-		const alwaysIsLower = alwaysEnd < neverEnd;
-		let nextAlways = alwaysEnd;
-		let nextNever = neverEnd;
-		let nextEps = getEpsilon(nextAlways, nextNever);
-		while (true) {
-			nextAlways = binarySearch(
-				nextAlways,
-				nextNever,
-				predicate,
-				(low, high) => low / 2 + high / 2,
-				nextEps,
-				safety,
-			);
-			nextNever = alwaysIsLower ? nextAlways + nextEps : nextAlways - nextEps;
-			const lastEps = nextEps;
-			nextEps = getEpsilon(nextAlways, nextNever);
-			if (nextEps === lastEps) break;
+	if (epsilon === "auto") {
+		if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
+			throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
 		}
-		return nextAlways;
+		const alwaysIsLower = alwaysEnd < neverEnd;
+		if (safety === "check" && typeof epsilon === "number") {
+			const high = alwaysIsLower ? neverEnd : alwaysEnd;
+			const low = alwaysIsLower ? alwaysEnd : neverEnd;
+			if (epsilon <= 0) {
+				throw new RangeError("epsilon must be positive");
+			}
+			if (high - low < epsilon) {
+				throw new RangeError(
+					"alwaysEnd and neverEnd must be different within the epsilon range",
+				);
+			}
+			if (high - epsilon === high || low + epsilon === low) {
+				throw new RangeError(
+					"epsilon must be representable at the precision of alwaysEnd and neverEnd",
+				);
+			}
+		}
+		return binarySearchGeneralized(
+			alwaysEnd,
+			neverEnd,
+			predicate,
+			midpointDouble,
+			alwaysIsLower ? shouldContinueDouble : shouldContinueDoubleInverted,
+			safety,
+		);
 	}
 
-	const eps = epsilon === "auto" ? getEpsilon(alwaysEnd, neverEnd) : epsilon;
-	const result = binarySearch(
+	return binarySearch(
 		alwaysEnd,
 		neverEnd,
 		predicate,
-		(low, high) => low / 2 + high / 2,
-		eps,
+		midpointDouble,
+		epsilon,
 		safety,
 	);
-
-	return result;
 };
 
 /**
@@ -1084,27 +1118,4 @@ export const binarySearchGeneralized = <T>(
 	}
 
 	return always;
-};
-
-/**
- * Calculates a safe epsilon for a range of double‑precision floating‑point numbers.
- * @param value1 - The first number.
- * @param value2 - The second number.
- * @returns The epsilon value: `floor_to_base_2(max(|value1|, |value2|)) * 2^-52` for normal values, `2^-1074` for subnormal values.
- */
-export const getEpsilon = (value1: number, value2: number): number => {
-	const max = Math.max(Math.abs(value1), Math.abs(value2));
-	return getUlp(max);
-};
-
-const view = new DataView(new ArrayBuffer(8));
-/**
- * Calculates the unit in the last place (ULP) for a given floating-point number.
- * @param value - The floating-point number.
- * @returns The ULP of the given number.
- */
-export const getUlp = (value: number): number => {
-	view.setFloat64(0, value);
-	const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
-	return 2 ** (exponent - 52) || Number.MIN_VALUE;
 };

@@ -182,7 +182,7 @@ safety?: "check" | "nocheck") => bigint;
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), it is calculated by {@link getEpsilon}. `"limit"` performs repeated refinements until reaching the representational limit.
+ * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), use the limit precision of double-precision floating-point values.
  * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
@@ -198,11 +198,10 @@ predicate: (value: number) => boolean,
 /**
  * The maximum acceptable error margin for the search.
  * - a positive number: absolute termination gap; must be representable at the scale of the endpoints.
- * - "auto" (default): picks a safe epsilon: `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52` for normal values, `2^-1074` for subnormal values.
- * - `"limit"`: starts like `"auto"`, then continues refining until reaching the representational limit of double‑precision values.
+ * - "auto" (default): the limit precision of double‑precision floating‑point values.
  * @default "auto"
  */
-epsilon?: number | "auto" | "limit", 
+epsilon?: number | "auto", 
 /** @default "check" */
 safety?: "check" | "nocheck") => number;
 /**
@@ -738,16 +737,3 @@ midpoint: (always: T, never: T) => T,
 shouldContinue: (always: T, never: T) => boolean, 
 /** @default "check" */
 safety?: "check" | "nocheck") => T;
-/**
- * Calculates a safe epsilon for a range of double‑precision floating‑point numbers.
- * @param value1 - The first number.
- * @param value2 - The second number.
- * @returns The epsilon value: `floor_to_base_2(max(|value1|, |value2|)) * 2^-52` for normal values, `2^-1074` for subnormal values.
- */
-export declare const getEpsilon: (value1: number, value2: number) => number;
-/**
- * Calculates the unit in the last place (ULP) for a given floating-point number.
- * @param value - The floating-point number.
- * @returns The ULP of the given number.
- */
-export declare const getUlp: (value: number) => number;

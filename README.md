@@ -80,10 +80,7 @@ Find a numeric value in a specified range. All functions can search ascending or
   - Floating‑point search with precision control.
   - `epsilon` can be:
     - a positive number: absolute termination gap; must be representable at the scale of the endpoints
-    - "auto" (default): pick a safe epsilon:
-      - Normal values: `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52`
-      - Subnormal values (|x| < 2^-1022): `2^-1074`
-    - "limit": starts like "auto", and performs repeated refinements until reaching the representational limit of double‑precision floating‑point numbers.
+    - "auto" (default): uses the representational limit of double‑precision floating‑point numbers.
 - `binarySearch(alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety?) → number | bigint`
   - Generalized to primitive numeric types (`number`/`bigint`) using a custom `midpoint(low, high)`.
   - `midpoint` must strictly shrink the interval on each iteration (return a value strictly between the bounds so that one boundary moves) to guarantee termination.

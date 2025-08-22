@@ -64,25 +64,53 @@ export const binarySearchInteger = (alwaysEnd, neverEnd, predicate, safety = "ch
 export const binarySearchBigint = (alwaysEnd, neverEnd, predicate, safety = "check") => {
     return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => (low + high) / 2n, 1n, safety);
 };
+const view = new DataView(new ArrayBuffer(8));
+const getExponent = (value) => {
+    view.setFloat64(0, value);
+    return ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
+};
+const midpointDouble = (value1, value2) => {
+    const exponent1 = getExponent(value1);
+    const exponent2 = getExponent(value2);
+    const diff = exponent2 - exponent1;
+    if (Math.abs(diff) <= 1)
+        return value1 / 2 + value2 / 2;
+    return 2 ** (exponent1 + diff / 2);
+};
+const shouldContinueDouble = (low, high) => {
+    const max = Math.max(Math.abs(low), Math.abs(high));
+    const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
+    const diff = Math.abs(high - low);
+    return diff > ulp;
+};
+const shouldContinueDoubleInverted = (high, low) => {
+    const max = Math.max(Math.abs(low), Math.abs(high));
+    const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
+    const diff = Math.abs(high - low);
+    return diff > ulp;
+};
 export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "auto", safety = "check") => {
-    if (epsilon === "limit") {
-        const alwaysIsLower = alwaysEnd < neverEnd;
-        let nextAlways = alwaysEnd;
-        let nextNever = neverEnd;
-        let nextEps = getEpsilon(nextAlways, nextNever);
-        while (true) {
-            nextAlways = binarySearch(nextAlways, nextNever, predicate, (low, high) => low / 2 + high / 2, nextEps, safety);
-            nextNever = alwaysIsLower ? nextAlways + nextEps : nextAlways - nextEps;
-            const lastEps = nextEps;
-            nextEps = getEpsilon(nextAlways, nextNever);
-            if (nextEps === lastEps)
-                break;
+    if (epsilon === "auto") {
+        if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
+            throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
         }
-        return nextAlways;
+        const alwaysIsLower = alwaysEnd < neverEnd;
+        if (safety === "check" && typeof epsilon === "number") {
+            const high = alwaysIsLower ? neverEnd : alwaysEnd;
+            const low = alwaysIsLower ? alwaysEnd : neverEnd;
+            if (epsilon <= 0) {
+                throw new RangeError("epsilon must be positive");
+            }
+            if (high - low < epsilon) {
+                throw new RangeError("alwaysEnd and neverEnd must be different within the epsilon range");
+            }
+            if (high - epsilon === high || low + epsilon === low) {
+                throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
+            }
+        }
+        return binarySearchGeneralized(alwaysEnd, neverEnd, predicate, midpointDouble, alwaysIsLower ? shouldContinueDouble : shouldContinueDoubleInverted, safety);
     }
-    const eps = epsilon === "auto" ? getEpsilon(alwaysEnd, neverEnd) : epsilon;
-    const result = binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => low / 2 + high / 2, eps, safety);
-    return result;
+    return binarySearch(alwaysEnd, neverEnd, predicate, midpointDouble, epsilon, safety);
 };
 const _binarySearchArrayInsertion = (findLast, sortedArray, target, compareFn) => {
     const alwaysEnd = findLast ? 0 : sortedArray.length - 1;
@@ -199,14 +227,4 @@ export const binarySearchGeneralized = (alwaysEnd, neverEnd, predicate, midpoint
             never = middle;
     }
     return always;
-};
-export const getEpsilon = (value1, value2) => {
-    const max = Math.max(Math.abs(value1), Math.abs(value2));
-    return getUlp(max);
-};
-const view = new DataView(new ArrayBuffer(8));
-export const getUlp = (value) => {
-    view.setFloat64(0, value);
-    const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
-    return 2 ** (exponent - 52) || Number.MIN_VALUE;
 };

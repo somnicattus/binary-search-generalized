@@ -9,8 +9,6 @@ import {
 	binarySearchGeneralized,
 	binarySearchArrayInsertionLeft,
 	binarySearchArrayInsertionRight,
-	getEpsilon,
-	getUlp,
 } from "../src/index.js";
 
 describe("binarySearchInteger", () => {
@@ -138,24 +136,20 @@ describe("binarySearchDouble", () => {
 		expect(result).toBe(10);
 	});
 
-	it("uses getEpsilon(alwaysEnd, neverEnd) by default - ascending", () => {
+	it("uses auto epsilon - ascending", () => {
 		const always = 0;
 		const never = 10;
 		const pred = (v: number) => v <= 7.3;
-		const withDefault = binarySearchDouble(always, never, pred);
-		const eps = getEpsilon(always, never);
-		const withExplicit = binarySearchDouble(always, never, pred, eps);
-		expect(withDefault).toBe(withExplicit);
+		const result = binarySearchDouble(always, never, pred);
+		expect(result).toBe(7.3);
 	});
 
-	it("uses getEpsilon(alwaysEnd, neverEnd) by default - descending", () => {
+	it("uses auto epsilon - descending", () => {
 		const always = 10;
 		const never = 0;
 		const pred = (v: number) => v >= 7.3;
-		const withDefault = binarySearchDouble(always, never, pred);
-		const eps = getEpsilon(always, never);
-		const withExplicit = binarySearchDouble(always, never, pred, eps);
-		expect(withDefault).toBe(withExplicit);
+		const result = binarySearchDouble(always, never, pred);
+		expect(result).toBe(7.3);
 	});
 
 	it("works for very large magnitudes without passing epsilon", () => {
@@ -173,31 +167,6 @@ describe("binarySearchDouble", () => {
 		const never = Number.MIN_VALUE * 64;
 		const res = binarySearchDouble(always, never, (v) => v <= 0);
 		expect(res).toBe(0);
-	});
-
-	it("epsilon: 'limit' performs ultimate refinements in double-precision floating-point values (ascending)", () => {
-		const always = -Number.MAX_VALUE;
-		const never = Number.MAX_VALUE;
-		const pred = (v: number) => v <= 123.456;
-		const limit = binarySearchDouble(always, never, pred, "limit");
-		expect(limit).toBe(123.456);
-	});
-
-	it("epsilon: 'limit' performs ultimate refinements in double-precision floating-point values (descending)", () => {
-		const always = Number.MAX_VALUE;
-		const never = -Number.MAX_VALUE;
-		const pred = (v: number) => v >= 123.456;
-		const result = binarySearchDouble(always, never, pred, "limit");
-		expect(result).toBe(123.456);
-	});
-
-	it("epsilon: 'limit' performs maximum possible refinements for double-precision floating-point values", () => {
-		const always = -Number.MAX_VALUE; // ~= 2 ** 1024
-		const never = Number.MAX_VALUE;
-		const pred = (v: number) => v <= Number.MIN_VALUE; // 2 ** -1074
-		// (1024 + 1074) / 52 = 40.3... calls expected
-		const max = binarySearchDouble(always, never, pred, "limit");
-		expect(max).toBe(Number.MIN_VALUE);
 	});
 });
 
@@ -722,50 +691,5 @@ describe("binarySearchGeneralized", () => {
 			"nocheck",
 		);
 		expect(Number.isFinite(val)).toBe(true);
-	});
-});
-
-describe("getUlp", () => {
-	it.each([
-		{ value: 1, expected: Number.EPSILON },
-		{ value: 2, expected: 2 * Number.EPSILON },
-		{ value: -100, expected: 64 * Number.EPSILON },
-		{ value: 1 - Number.EPSILON, expected: Number.EPSILON / 2 },
-		{ value: Number.MAX_VALUE, expected: 2 ** 1023 * Number.EPSILON },
-	])(
-		"computes correct ULP for normal values: $value",
-		({ value, expected }) => {
-			expect(getUlp(value)).toBe(expected);
-		},
-	);
-
-	it("returns Number.MIN_VALUE for subnormal values (including 0)", () => {
-		expect(getUlp(0)).toBe(Number.MIN_VALUE);
-		expect(getUlp(2 ** -1024)).toBe(Number.MIN_VALUE);
-		expect(getUlp(-(2 ** -1024))).toBe(Number.MIN_VALUE);
-	});
-
-	it("is symmetric with respect to sign", () => {
-		const a = 123.456;
-		expect(getUlp(a)).toBe(getUlp(-a));
-	});
-});
-
-describe("getEpsilon", () => {
-	it("equals getUlp(max(|a|,|b|)) for normal magnitudes", () => {
-		const a = -100;
-		const b = 12;
-		const expected = getUlp(Math.max(Math.abs(a), Math.abs(b)));
-		expect(getEpsilon(a, b)).toBe(expected);
-	});
-
-	it("returns Number.MIN_VALUE when both magnitudes are subnormal", () => {
-		expect(getEpsilon(-(2 ** -1024), 2 ** -1025)).toBe(Number.MIN_VALUE);
-	});
-
-	it("is symmetric with respect to arguments", () => {
-		const a = 1e5;
-		const b = -1e3;
-		expect(getEpsilon(a, b)).toBe(getEpsilon(b, a));
 	});
 });
