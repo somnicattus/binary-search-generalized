@@ -76,8 +76,9 @@ export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "au
             const lastEps = nextEps;
             nextEps = getEpsilon(nextAlways, nextNever);
             if (nextEps === lastEps)
-                return nextAlways;
+                break;
         }
+        return nextAlways;
     }
     const eps = epsilon === "auto" ? getEpsilon(alwaysEnd, neverEnd) : epsilon;
     const result = binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => low / 2 + high / 2, eps, safety);

@@ -342,8 +342,9 @@ export const binarySearchDouble = (
 			nextNever = alwaysIsLower ? nextAlways + nextEps : nextAlways - nextEps;
 			const lastEps = nextEps;
 			nextEps = getEpsilon(nextAlways, nextNever);
-			if (nextEps === lastEps) return nextAlways;
+			if (nextEps === lastEps) break;
 		}
+		return nextAlways;
 	}
 
 	const eps = epsilon === "auto" ? getEpsilon(alwaysEnd, neverEnd) : epsilon;

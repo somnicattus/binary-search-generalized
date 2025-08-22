@@ -281,6 +281,26 @@ describe("binarySearchArray", () => {
 			expect(binarySearchArray(arr, { v: 2 }, cmp)).toBe(1);
 		});
 	});
+
+	it("single-element array without comparator returns 0 or -1 appropriately", () => {
+		// Covers single-element fast path without compareFn
+		expect(binarySearchArray([5], 5)).toBe(0);
+		expect(binarySearchArray([5], 4)).toBe(-1);
+	});
+
+	it("single-element array with comparator returns 0 or -1 appropriately", () => {
+		// Covers single-element fast path with compareFn
+		const cmp = (a: { v: number }, b: { v: number }) => a.v - b.v;
+		expect(binarySearchArray([{ v: 5 }], { v: 5 }, cmp)).toBe(0);
+		expect(binarySearchArray([{ v: 5 }], { v: 4 }, cmp)).toBe(-1);
+	});
+
+	it("custom comparator returns -1 when nearest index is not equal", () => {
+		// Ensures branch where index is within bounds but element != target under comparator
+		const arr = [{ v: 1 }, { v: 3 }, { v: 5 }];
+		const cmp = (a: { v: number }, b: { v: number }) => a.v - b.v;
+		expect(binarySearchArray(arr, { v: 4 }, cmp)).toBe(-1);
+	});
 });
 
 describe("binarySearchArrayLast", () => {
@@ -335,6 +355,14 @@ describe("binarySearchArrayInsertion", () => {
 		expect(binarySearchArrayInsertionLeft(arr, 4)).toBe(3);
 		expect(binarySearchArrayInsertionLeft(arr, 5)).toBe(3);
 		expect(binarySearchArrayInsertionLeft(arr, 6)).toBe(4);
+	});
+
+	it("single-element arrays with comparator are handled (left/right)", () => {
+		const cmp = (a: { v: number }, b: { v: number }) => a.v - b.v;
+		// Left: equality case (covers comparator branch evaluation)
+		expect(binarySearchArrayInsertionLeft([{ v: 5 }], { v: 5 }, cmp)).toBe(0);
+		// Right: equality case returns 1 for single-element
+		expect(binarySearchArrayInsertionRight([{ v: 5 }], { v: 5 }, cmp)).toBe(1);
 	});
 
 	it("right insertion index - ascending numbers", () => {
