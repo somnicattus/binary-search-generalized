@@ -72,10 +72,10 @@ const getExponent = (value) => {
 const midpointDouble = (value1, value2) => {
     const exponent1 = getExponent(value1);
     const exponent2 = getExponent(value2);
-    const diff = exponent2 - exponent1;
-    if (Math.abs(diff) <= 1)
+    const diff = Math.abs(exponent1 - exponent2);
+    if (diff <= 1)
         return value1 / 2 + value2 / 2;
-    return 2 ** (exponent1 + diff / 2);
+    return (exponent1 > exponent2 ? value1 : value2) * 2 ** -(diff / 2);
 };
 const shouldContinueDouble = (low, high) => {
     const max = Math.max(Math.abs(low), Math.abs(high));
