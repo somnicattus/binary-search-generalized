@@ -77,16 +77,10 @@ const midpointDouble = (value1, value2) => {
         return value1 / 2 + value2 / 2;
     return (exponent1 > exponent2 ? value1 : value2) * 2 ** -(diff / 2);
 };
-const shouldContinueDouble = (low, high) => {
-    const max = Math.max(Math.abs(low), Math.abs(high));
+const shouldContinueDouble = (value1, value2) => {
+    const max = Math.max(Math.abs(value1), Math.abs(value2));
     const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
-    const diff = Math.abs(high - low);
-    return diff > ulp;
-};
-const shouldContinueDoubleInverted = (high, low) => {
-    const max = Math.max(Math.abs(low), Math.abs(high));
-    const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
-    const diff = Math.abs(high - low);
+    const diff = Math.abs(value1 - value2);
     return diff > ulp;
 };
 export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "auto", safety = "check") => {
@@ -108,7 +102,7 @@ export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "au
                 throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
             }
         }
-        return binarySearchGeneralized(alwaysEnd, neverEnd, predicate, midpointDouble, alwaysIsLower ? shouldContinueDouble : shouldContinueDoubleInverted, safety);
+        return binarySearchGeneralized(alwaysEnd, neverEnd, predicate, midpointDouble, shouldContinueDouble, safety);
     }
     return binarySearch(alwaysEnd, neverEnd, predicate, midpointDouble, epsilon, safety);
 };

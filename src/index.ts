@@ -299,17 +299,10 @@ const midpointDouble = (value1: number, value2: number): number => {
 	return (exponent1 > exponent2 ? value1 : value2) * 2 ** -(diff / 2);
 };
 
-const shouldContinueDouble = (low: number, high: number): boolean => {
-	const max = Math.max(Math.abs(low), Math.abs(high));
+const shouldContinueDouble = (value1: number, value2: number): boolean => {
+	const max = Math.max(Math.abs(value1), Math.abs(value2));
 	const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
-	const diff = Math.abs(high - low);
-	return diff > ulp;
-};
-
-const shouldContinueDoubleInverted = (high: number, low: number): boolean => {
-	const max = Math.max(Math.abs(low), Math.abs(high));
-	const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
-	const diff = Math.abs(high - low);
+	const diff = Math.abs(value1 - value2);
 	return diff > ulp;
 };
 
@@ -379,7 +372,7 @@ export const binarySearchDouble = (
 			neverEnd,
 			predicate,
 			midpointDouble,
-			alwaysIsLower ? shouldContinueDouble : shouldContinueDoubleInverted,
+			shouldContinueDouble,
 			safety,
 		);
 	}
