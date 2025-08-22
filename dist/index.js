@@ -1,8 +1,12 @@
 export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety = "check") => {
-    const alwaysEndIsLower = alwaysEnd < neverEnd;
-    let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
-    let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
+    const alwaysIsLower = alwaysEnd < neverEnd;
+    let low = alwaysIsLower ? alwaysEnd : neverEnd;
+    let high = alwaysIsLower ? neverEnd : alwaysEnd;
     if (safety === "check" || safety === "strict") {
+        if (typeof alwaysEnd !== typeof neverEnd ||
+            typeof epsilon !== typeof alwaysEnd) {
+            throw new RangeError("alwaysEnd, neverEnd, and epsilon must be of the same type");
+        }
         if (!predicate(alwaysEnd)) {
             throw new RangeError("alwaysEnd must satisfy the condition");
         }
@@ -32,21 +36,21 @@ export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, 
             if (middle >= high || middle <= low) {
                 throw new RangeError(`midpoint function did not converge: got ${middle} with ${low} and ${high}`);
             }
-            if (predicate(middle) === alwaysEndIsLower)
+            if (predicate(middle) === alwaysIsLower)
                 low = middle;
             else
                 high = middle;
         }
-        return alwaysEndIsLower ? low : high;
+        return alwaysIsLower ? low : high;
     }
     while (high - low > epsilon) {
         const middle = midpoint(low, high);
-        if (predicate(middle) === alwaysEndIsLower)
+        if (predicate(middle) === alwaysIsLower)
             low = middle;
         else
             high = middle;
     }
-    return alwaysEndIsLower ? low : high;
+    return alwaysIsLower ? low : high;
 };
 export const binarySearchInteger = (alwaysEnd, neverEnd, predicate, safety = "check") => {
     if (safety === "check") {
@@ -62,18 +66,16 @@ export const binarySearchBigint = (alwaysEnd, neverEnd, predicate, safety = "che
 };
 export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "auto", safety = "check") => {
     if (epsilon === "limit") {
-        const alwaysEndIsLower = alwaysEnd < neverEnd;
+        const alwaysIsLower = alwaysEnd < neverEnd;
         let nextAlways = alwaysEnd;
         let nextNever = neverEnd;
         let nextEps = getEpsilon(nextAlways, nextNever);
         while (true) {
             nextAlways = binarySearch(nextAlways, nextNever, predicate, (low, high) => low / 2 + high / 2, nextEps, safety);
-            nextNever = alwaysEndIsLower
-                ? nextAlways + nextEps
-                : nextAlways - nextEps;
-            const formerEps = nextEps;
+            nextNever = alwaysIsLower ? nextAlways + nextEps : nextAlways - nextEps;
+            const lastEps = nextEps;
             nextEps = getEpsilon(nextAlways, nextNever);
-            if (nextEps === formerEps)
+            if (nextEps === lastEps)
                 return nextAlways;
         }
     }
@@ -157,6 +159,7 @@ export const binarySearchArrayInsertionLeft = (sortedArray, target, order) => {
     return _binarySearchArrayInsertion(false, sortedArray, target, typeof order === "function" ? order : undefined);
 };
 export const bsInsertionLeft = binarySearchArrayInsertionLeft;
+export const bsLowerBound = binarySearchArrayInsertionLeft;
 export const binarySearchArrayInsertionRight = (sortedArray, target, order) => {
     if (sortedArray.length === 0)
         return 0;
@@ -175,6 +178,7 @@ export const binarySearchArrayInsertionRight = (sortedArray, target, order) => {
     return (_binarySearchArrayInsertion(true, sortedArray, target, typeof order === "function" ? order : undefined) + 1);
 };
 export const bsInsertionRight = binarySearchArrayInsertionRight;
+export const bsUpperBound = binarySearchArrayInsertionRight;
 export const binarySearchGeneralized = (alwaysEnd, neverEnd, predicate, midpoint, shouldContinue, safety = "check") => {
     if (safety === "check") {
         if (!predicate(alwaysEnd)) {
@@ -197,10 +201,11 @@ export const binarySearchGeneralized = (alwaysEnd, neverEnd, predicate, midpoint
 };
 export const getEpsilon = (value1, value2) => {
     const max = Math.max(Math.abs(value1), Math.abs(value2));
-    if (max < 2 ** -1022)
-        return Number.MIN_VALUE;
-    const view = new DataView(new ArrayBuffer(8));
-    view.setFloat64(0, max);
-    const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023 - 52;
-    return 2 ** exponent;
+    return getUlp(max);
+};
+const view = new DataView(new ArrayBuffer(8));
+export const getUlp = (value) => {
+    view.setFloat64(0, value);
+    const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
+    return 2 ** (exponent - 52) || Number.MIN_VALUE;
 };

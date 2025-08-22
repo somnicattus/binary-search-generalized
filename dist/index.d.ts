@@ -178,7 +178,7 @@ safety?: "check" | "nocheck") => bigint;
  *   (value) => Math.sin(value) <= 0.5,
  *   0.0005,
  * );
- * // result will be in range π/6 - 0.0005 <= result < π/6 (close to the largest angle whose sine is less than or equal to 0.5; arcsin(0.5))
+ * // result will be in the range [π/6 - 0.0005, π/6] (close to the largest angle whose sine is less than or equal to 0.5; arcsin(0.5))
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
@@ -424,7 +424,7 @@ export declare const bsFindLastIndex: {
  * const i2 = binarySearchArrayInsertionLeft([5], 6, 'asc'); // 1
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
  * @param target - The target value to find.
- * @param order - The order of the sorted array. If omitted, the function infers the order from the first two elements. Required if the array may contain only one element.
+ * @param order - The order of the sorted array. If omitted, the function infers the order from the first and the last elements. Required when the array may contain only one element.
  * @param compareFn - Comparator used to sort the array. Returns a negative number if the first value is less than the second, a positive number if greater, and zero if equal.
  * @template T - The type of the elements in the sorted array.
  * @returns The index at which the target value should be inserted.
@@ -533,6 +533,15 @@ export declare const binarySearchArrayInsertionLeft: {
  * Alias of {@link binarySearchArrayInsertionLeft}
  */
 export declare const bsInsertionLeft: {
+    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
+    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
+};
+/**
+ * Alias of {@link binarySearchArrayInsertionLeft}
+ */
+export declare const bsLowerBound: {
     (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
     (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
     (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
@@ -671,6 +680,15 @@ export declare const bsInsertionRight: {
     <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
 };
 /**
+ * Alias of {@link binarySearchArrayInsertionRight}
+ */
+export declare const bsUpperBound: {
+    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
+    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
+    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
+};
+/**
  * Performs a generalized binary search over a range of non‑primitive numeric‑like values.
  * @example
  * import BigNumber from "bignumber.js";
@@ -727,3 +745,9 @@ safety?: "check" | "nocheck") => T;
  * @returns The epsilon value: `floor_to_base_2(max(|value1|, |value2|)) * 2^-52` for normal values, `2^-1074` for subnormal values.
  */
 export declare const getEpsilon: (value1: number, value2: number) => number;
+/**
+ * Calculates the unit in the last place (ULP) for a given floating-point number.
+ * @param value - The floating-point number.
+ * @returns The ULP of the given number.
+ */
+export declare const getUlp: (value: number) => number;
