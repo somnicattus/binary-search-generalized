@@ -126,9 +126,9 @@ export const binarySearch: {
 	epsilon: T,
 	safety: "check" | "nocheck" | "strict" = "check",
 ): T => {
-	const alwaysEndIsLower = alwaysEnd < neverEnd;
-	let low = alwaysEndIsLower ? alwaysEnd : neverEnd;
-	let high = alwaysEndIsLower ? neverEnd : alwaysEnd;
+	const alwaysIsLower = alwaysEnd < neverEnd;
+	let low = alwaysIsLower ? alwaysEnd : neverEnd;
+	let high = alwaysIsLower ? neverEnd : alwaysEnd;
 
 	if (safety === "check" || safety === "strict") {
 		if (!predicate(alwaysEnd)) {
@@ -171,20 +171,20 @@ export const binarySearch: {
 					`midpoint function did not converge: got ${middle} with ${low} and ${high}`,
 				);
 			}
-			if (predicate(middle) === alwaysEndIsLower) low = middle;
+			if (predicate(middle) === alwaysIsLower) low = middle;
 			else high = middle;
 		}
 
-		return alwaysEndIsLower ? low : high;
+		return alwaysIsLower ? low : high;
 	}
 
 	while (high - low > epsilon) {
 		const middle = midpoint(low, high);
-		if (predicate(middle) === alwaysEndIsLower) low = middle;
+		if (predicate(middle) === alwaysIsLower) low = middle;
 		else high = middle;
 	}
 
-	return alwaysEndIsLower ? low : high;
+	return alwaysIsLower ? low : high;
 };
 
 /**
@@ -318,7 +318,7 @@ export const binarySearchDouble = (
 	safety: "check" | "nocheck" = "check",
 ): number => {
 	if (epsilon === "limit") {
-		const alwaysEndIsLower = alwaysEnd < neverEnd;
+		const alwaysIsLower = alwaysEnd < neverEnd;
 		let nextAlways = alwaysEnd;
 		let nextNever = neverEnd;
 		let nextEps = getEpsilon(nextAlways, nextNever);
@@ -331,12 +331,10 @@ export const binarySearchDouble = (
 				nextEps,
 				safety,
 			);
-			nextNever = alwaysEndIsLower
-				? nextAlways + nextEps
-				: nextAlways - nextEps;
-			const formerEps = nextEps;
+			nextNever = alwaysIsLower ? nextAlways + nextEps : nextAlways - nextEps;
+			const lastEps = nextEps;
 			nextEps = getEpsilon(nextAlways, nextNever);
-			if (nextEps === formerEps) return nextAlways;
+			if (nextEps === lastEps) return nextAlways;
 		}
 	}
 
