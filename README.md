@@ -82,7 +82,7 @@ Find a numeric value in a specified range. All functions can search ascending or
     - "auto" (default): pick a safe epsilon:
       - Normal values: `floor_to_base_2(max(|alwaysEnd|, |neverEnd|)) * 2^-52`
       - Subnormal values (|x| < 2^-1022): `2^-1074`
-    - "limit": start like "auto", and perform repeated refinements until reaching the representational limit of double‑precision floating‑point numbers.
+    - "limit": starts like "auto", and performs repeated refinements until reaching the representational limit of double‑precision floating‑point numbers.
 - `binarySearch(alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety?) → number | bigint`
   - Generalized to primitive numeric types (`number`/`bigint`) using a custom `midpoint(low, high)`.
   - `midpoint` must strictly shrink the interval on each iteration (return a value strictly between the bounds so that one boundary moves) to guarantee termination.
@@ -107,7 +107,7 @@ Overloads for `number | bigint | string` or a custom comparator for arbitrary ob
   - Like binarySearchArray, but returns the last index for duplicates; -1 if not found.
 - `binarySearchArrayInsertionLeft(sortedArray, target, orderOrCompare?) → number`
   - Left insertion point (before the first equal element).
-  - For single-element arrays, pass `order: "asc" | "desc"`, or a comparator.
+  - For single-element arrays, pass `order` (`"asc" | "desc"`), or a comparator.
 - `binarySearchArrayInsertionRight(sortedArray, target, orderOrCompare?) → number`
   - Right insertion point (after the last equal element).
   - Same single-element array note as above.
@@ -118,18 +118,18 @@ Overloads for `number | bigint | string` or a custom comparator for arbitrary ob
   - Without `compareFn`, arrays must be sorted in the natural order of numbers/bigints/strings.
   - With `compareFn`, arrays must be sorted using `compareFn`.
 - Order (asc/desc) is detected automatically for arrays with `length >= 2` when no comparator is provided.
-  - For arrays of `length = 1`, you must specify `order` (`"asc" | "desc"`) or pass a `compareFn`, otherwise a `RangeError` is thrown.
+  - For arrays of `length = 1`, you must specify `order` (`"asc" | "desc"`) or pass a `compareFn`; otherwise, a `RangeError` is thrown.
 
 ## Common pitfalls
 
 - Non‑monotonic predicate: `predicate` must not flip true/false multiple times across the range. If it’s not monotonic, results are undefined.
 - Midpoint not shrinking: a custom `midpoint` that returns `low` or `high` can cause infinite loops. Ensure it strictly reduces the interval (e.g., for integers use `Math.floor(low / 2 + high / 2)` and design your predicate so a bound moves).
-- Epsilon too small or not representable: pick an `epsilon` that’s meaningful at the magnitude of the endpoints; values below the local ulp won’t change bounds and will throw in `"check"` mode.
+- Epsilon too small or not representable: pick an `epsilon` that’s meaningful at the magnitude of the endpoints; values below the local ulp won’t change the bounds and will throw in `"check"` mode.
 - Invalid endpoints: `alwaysEnd` must satisfy `predicate` and `neverEnd` must not; otherwise a `RangeError` is thrown in `"check"` mode.
 - Arrays not truly sorted / comparator mismatch: if the array isn’t sorted according to the provided comparator (or natural order), results are undefined. Auto asc/desc detection requires `length >= 2`.
 - Single‑element arrays: for insertion helpers, pass `order` (`"asc" | "desc"`) or a `compareFn`; otherwise a `RangeError` is thrown.
 - Duplicates: `binarySearchArray` returns the first index; use `binarySearchArrayLast` for the last index. Choose left/right insertion helpers depending on where you want to insert equal values.
-- Mixed types or NaN: avoid mixing numbers with `NaN` or incompatible types. For bigint arrays, don’t mix with number.
+- Mixed types or NaN: avoid mixing numbers with `NaN` or incompatible types. For bigint arrays, don’t mix with numbers.
 - Convergence: for custom domains, ensure your `midpoint` and termination condition guarantee convergence.
 
 ## Examples
@@ -202,7 +202,7 @@ binarySearchArrayInsertionRight(objs, { v: 3 }, cmpObj);  // 3
 Generalized domain (`BigNumber`):
 
 ```ts
-import BigNumber from "bignumber.js"
+import BigNumber from "bignumber.js";
 import { binarySearchGeneralized } from "binary-search-generalized";
 const found = binarySearchGeneralized(
   new BigNumber('0'),
