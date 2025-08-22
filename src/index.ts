@@ -1085,9 +1085,17 @@ export const binarySearchGeneralized = <T>(
  */
 export const getEpsilon = (value1: number, value2: number): number => {
 	const max = Math.max(Math.abs(value1), Math.abs(value2));
-	if (max < 2 ** -1022) return Number.MIN_VALUE;
-	const view = new DataView(new ArrayBuffer(8));
-	view.setFloat64(0, max);
-	const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023 - 52;
-	return 2 ** exponent;
+	return getUlp(max);
+};
+
+const view = new DataView(new ArrayBuffer(8));
+/**
+ * Calculates the unit in the last place (ULP) for a given floating-point number.
+ * @param value - The floating-point number.
+ * @returns The ULP of the given number.
+ */
+export const getUlp = (value: number): number => {
+	view.setFloat64(0, value);
+	const exponent = ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
+	return 2 ** (exponent - 52) || Number.MIN_VALUE;
 };

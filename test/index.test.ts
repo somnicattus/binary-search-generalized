@@ -10,6 +10,7 @@ import {
 	binarySearchArrayInsertionLeft,
 	binarySearchArrayInsertionRight,
 	getEpsilon,
+	getUlp,
 } from "../src/index.js";
 
 describe("binarySearchInteger", () => {
@@ -672,37 +673,41 @@ describe("binarySearchGeneralized", () => {
 	});
 });
 
-describe("getEpsilon", () => {
+describe("getUlp", () => {
 	it.each([
-		{
-			value1: 1,
-			value2: 2,
-			expected: 2 * Number.EPSILON,
-		},
-		{
-			value1: -100,
-			value2: 12,
-			expected: 64 * Number.EPSILON,
-		},
-		{
-			value1: 1 - Number.EPSILON,
-			value2: 0.1,
-			expected: Number.EPSILON / 2,
-		},
-		{
-			value1: Number.MAX_VALUE,
-			value2: Number.MIN_VALUE,
-			expected: 2 ** 1023 * Number.EPSILON,
-		},
+		{ value: 1, expected: Number.EPSILON },
+		{ value: 2, expected: 2 * Number.EPSILON },
+		{ value: -100, expected: 64 * Number.EPSILON },
+		{ value: 1 - Number.EPSILON, expected: Number.EPSILON / 2 },
+		{ value: Number.MAX_VALUE, expected: 2 ** 1023 * Number.EPSILON },
 	])(
-		"uses the larger magnitude (floor to base 2) times Number.EPSILON for $value1 and $value2",
-		({ value1, value2, expected }) => {
-			const e1 = getEpsilon(value1, value2);
-			expect(e1).toBe(expected);
+		"computes correct ULP for normal values: $value",
+		({ value, expected }) => {
+			expect(getUlp(value)).toBe(expected);
 		},
 	);
 
-	it("returns Number.MIN_VALUE for subnormal values", () => {
+	it("returns Number.MIN_VALUE for subnormal values (including 0)", () => {
+		expect(getUlp(0)).toBe(Number.MIN_VALUE);
+		expect(getUlp(2 ** -1024)).toBe(Number.MIN_VALUE);
+		expect(getUlp(-(2 ** -1024))).toBe(Number.MIN_VALUE);
+	});
+
+	it("is symmetric with respect to sign", () => {
+		const a = 123.456;
+		expect(getUlp(a)).toBe(getUlp(-a));
+	});
+});
+
+describe("getEpsilon", () => {
+	it("equals getUlp(max(|a|,|b|)) for normal magnitudes", () => {
+		const a = -100;
+		const b = 12;
+		const expected = getUlp(Math.max(Math.abs(a), Math.abs(b)));
+		expect(getEpsilon(a, b)).toBe(expected);
+	});
+
+	it("returns Number.MIN_VALUE when both magnitudes are subnormal", () => {
 		expect(getEpsilon(-(2 ** -1024), 2 ** -1025)).toBe(Number.MIN_VALUE);
 	});
 
