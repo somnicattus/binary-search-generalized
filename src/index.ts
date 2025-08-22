@@ -822,6 +822,11 @@ export const binarySearchArrayInsertionLeft: {
 export const bsInsertionLeft = binarySearchArrayInsertionLeft;
 
 /**
+ * Alias of {@link binarySearchArrayInsertionLeft}
+ */
+export const bsLowerBound = binarySearchArrayInsertionLeft;
+
+/**
  * Performs a binary search on a sorted array and returns the right insertion point.
  * @example
  * import { binarySearchArrayInsertionRight } from "binary-search-generalized";
@@ -994,6 +999,11 @@ export const binarySearchArrayInsertionRight: {
  * Alias of {@link binarySearchArrayInsertionRight}
  */
 export const bsInsertionRight = binarySearchArrayInsertionRight;
+
+/**
+ * Alias of {@link binarySearchArrayInsertionRight}
+ */
+export const bsUpperBound = binarySearchArrayInsertionRight;
 
 /**
  * Performs a generalized binary search over a range of non‑primitive numeric‑like values.
