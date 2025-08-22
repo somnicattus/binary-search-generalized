@@ -612,6 +612,30 @@ describe("binarySearch", () => {
 			),
 		).toThrow(/midpoint function did not converge/);
 	});
+
+	it("throws when alwaysEnd and neverEnd types mismatch (number vs bigint)", () => {
+		expect(() =>
+			binarySearch(
+				0 as unknown as number,
+				1n as unknown as number,
+				(v: number) => v <= 0.5,
+				(l, h) => l + (h - l) / 2,
+				1,
+			),
+		).toThrow("alwaysEnd, neverEnd, and epsilon must be of the same type");
+	});
+
+	it("throws when epsilon type mismatches endpoints (number endpoints, bigint epsilon)", () => {
+		expect(() =>
+			binarySearch(
+				0,
+				1,
+				(v: number) => v <= 0.5,
+				(l, h) => l + (h - l) / 2,
+				1n as unknown as number,
+			),
+		).toThrow("alwaysEnd, neverEnd, and epsilon must be of the same type");
+	});
 });
 
 describe("binarySearchGeneralized", () => {

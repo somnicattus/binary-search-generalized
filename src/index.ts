@@ -131,6 +131,14 @@ export const binarySearch: {
 	let high = alwaysIsLower ? neverEnd : alwaysEnd;
 
 	if (safety === "check" || safety === "strict") {
+		if (
+			typeof alwaysEnd !== typeof neverEnd ||
+			typeof epsilon !== typeof alwaysEnd
+		) {
+			throw new RangeError(
+				"alwaysEnd, neverEnd, and epsilon must be of the same type",
+			);
+		}
 		if (!predicate(alwaysEnd)) {
 			throw new RangeError("alwaysEnd must satisfy the condition");
 		}
