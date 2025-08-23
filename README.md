@@ -91,8 +91,7 @@ Find a numeric value in a specified range. All functions can search ascending or
 #### Preconditions for Numeric API
 
 - All functions assume a monotonic `predicate` across the search range: once the `predicate` becomes true (or false), it stays that way.
-- `alwaysEnd` must satisfy `predicate`; `neverEnd` must not.
-- `safety: "nocheck"` disables safety checks, including endpoint validation and representability checks.
+- `safety: "nocheck"` turns off precondition checks (no validation that `alwaysEnd` satisfies the predicate and `neverEnd` does not).
 
 ### Array
 

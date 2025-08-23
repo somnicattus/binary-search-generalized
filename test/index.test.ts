@@ -23,7 +23,7 @@ describe("binarySearchInteger", () => {
 	});
 
 	it("should throw error for invalid condition", () => {
-		expect(() => binarySearchInteger(10, 10, (v) => v > 5)).toThrow(
+		expect(() => binarySearchInteger(15, 10, (v) => v > 5)).toThrow(
 			new RangeError("neverEnd must not satisfy the condition"),
 		);
 	});
@@ -172,18 +172,6 @@ describe("binarySearchDouble", () => {
 		const always = -Number.MIN_VALUE;
 		const never = Number.MIN_VALUE * 64;
 		const res = binarySearchDouble(always, never, (v) => v <= 0);
-		expect(res).toBe(0);
-	});
-
-	it("should not throw in nocheck mode even with -Infinity to Infinity range", () => {
-		// NOTE: This test can cause infinite loop in some types of implementation
-		const res = binarySearchDouble(
-			Number.NEGATIVE_INFINITY,
-			Number.POSITIVE_INFINITY,
-			(v) => v <= 0,
-			"auto",
-			"nocheck",
-		);
 		expect(res).toBe(0);
 	});
 });
@@ -552,30 +540,6 @@ describe("binarySearch", () => {
 		).toThrow(
 			"epsilon must be representable at the precision of alwaysEnd and neverEnd",
 		);
-	});
-
-	it("should throw error when endpoints are infinite", () => {
-		expect(() =>
-			binarySearch(
-				Number.POSITIVE_INFINITY,
-				0,
-				(v) => v > 1,
-				(l, h) => l + (h - l) / 2,
-				1,
-			),
-		).toThrow("alwaysEnd, neverEnd, and epsilon must be finite numbers");
-	});
-
-	it("should not throw for unsafe parameter check", () => {
-		const result = binarySearch(
-			10,
-			20,
-			(v) => v < 5,
-			(low, high) => Math.floor((low + high) / 2),
-			0,
-			"nocheck",
-		);
-		expect(result).toBe(10);
 	});
 
 	it("strict: returns correct value with a shrinking midpoint (number)", () => {

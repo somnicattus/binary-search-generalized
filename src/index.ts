@@ -16,9 +16,9 @@
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param epsilon - The maximum acceptable error margin for the search.
- * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to verify midpoint convergence on every call.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to turn off precondition check. Use `"strict"` to check midpoint convergence on every call.
  * @returns The boundary value that satisfies the condition.
- * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
+ * @throws {RangeError | TypeError} If invalid values or conditions are specified.
  * @remarks Consider using {@link binarySearchInteger}, {@link binarySearchDouble}, or {@link binarySearchBigint} for specific numeric types, and {@link binarySearchArray} for arrays.
  * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
  * @function
@@ -42,9 +42,9 @@ export const binarySearch: {
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to verify midpoint convergence on every call.
+	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check`predicate` checks for `alwaysEnd` and `neverEnd`. Use `"strict"` to check midpoint convergence on every call.
 	 * @returns The boundary value that satisfies the condition.
-	 * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
+	 * @throws {RangeError | TypeError} If invalid values or conditions are specified.
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
 	 */
 	(
@@ -89,9 +89,9 @@ export const binarySearch: {
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
 	 * @param midpoint - A function that determines the midpoint between two values.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks. Use `"strict"` to verify midpoint convergence on every call.
+	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check. Use `"strict"` to check midpoint convergence on every call.
 	 * @returns The boundary value that satisfies the condition.
-	 * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
+	 * @throws {RangeError | TypeError} If invalid values or conditions are specified.
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
 	 */
 	(
@@ -130,44 +130,46 @@ export const binarySearch: {
 	let low = alwaysIsLower ? alwaysEnd : neverEnd;
 	let high = alwaysIsLower ? neverEnd : alwaysEnd;
 
-	if (safety === "check" || safety === "strict") {
+	if (
+		typeof alwaysEnd !== typeof neverEnd ||
+		typeof epsilon !== typeof alwaysEnd
+	) {
+		throw new TypeError(
+			"alwaysEnd, neverEnd, and epsilon must be of the same type",
+		);
+	}
+
+	if (epsilon <= 0) {
+		throw new RangeError("epsilon must be positive");
+	}
+	if (high - low < epsilon) {
+		throw new RangeError(
+			"alwaysEnd and neverEnd must be different within the epsilon range",
+		);
+	}
+	if (typeof epsilon === "number") {
 		if (
-			typeof alwaysEnd !== typeof neverEnd ||
-			typeof epsilon !== typeof alwaysEnd
+			!Number.isFinite(epsilon) ||
+			!Number.isFinite(alwaysEnd) ||
+			!Number.isFinite(neverEnd)
 		) {
 			throw new RangeError(
-				"alwaysEnd, neverEnd, and epsilon must be of the same type",
+				"alwaysEnd, neverEnd, and epsilon must be finite numbers",
 			);
 		}
+		if (high - epsilon === high || (low as number) + epsilon === low) {
+			throw new RangeError(
+				"epsilon must be representable at the precision of alwaysEnd and neverEnd",
+			);
+		}
+	}
+
+	if (safety === "check" || safety === "strict") {
 		if (!predicate(alwaysEnd)) {
 			throw new RangeError("alwaysEnd must satisfy the condition");
 		}
 		if (predicate(neverEnd)) {
 			throw new RangeError("neverEnd must not satisfy the condition");
-		}
-		if (epsilon <= 0) {
-			throw new RangeError("epsilon must be positive");
-		}
-		if (high - low < epsilon) {
-			throw new RangeError(
-				"alwaysEnd and neverEnd must be different within the epsilon range",
-			);
-		}
-		if (typeof epsilon === "number") {
-			if (
-				!Number.isFinite(epsilon) ||
-				!Number.isFinite(alwaysEnd) ||
-				!Number.isFinite(neverEnd)
-			) {
-				throw new RangeError(
-					"alwaysEnd, neverEnd, and epsilon must be finite numbers",
-				);
-			}
-			if (high - epsilon === high || (low as number) + epsilon === low) {
-				throw new RangeError(
-					"epsilon must be representable at the precision of alwaysEnd and neverEnd",
-				);
-			}
 		}
 	}
 
@@ -208,9 +210,9 @@ export const binarySearch: {
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check.
  * @returns The boundary value that satisfies the condition.
- * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
+ * @throws {RangeError} If invalid values or conditions are specified.
  * @remarks In check mode, `alwaysEnd` and `neverEnd` must be safe integers (`Number.isSafeInteger`).
  */
 export const binarySearchInteger = (
@@ -226,13 +228,11 @@ export const binarySearchInteger = (
 	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
 ) => {
-	if (safety === "check") {
-		if (
-			Number.isSafeInteger(alwaysEnd) === false ||
-			Number.isSafeInteger(neverEnd) === false
-		) {
-			throw new RangeError("alwaysEnd and neverEnd must be safe integers");
-		}
+	if (
+		Number.isSafeInteger(alwaysEnd) === false ||
+		Number.isSafeInteger(neverEnd) === false
+	) {
+		throw new RangeError("alwaysEnd and neverEnd must be safe integers");
 	}
 
 	return binarySearch(
@@ -258,9 +258,9 @@ export const binarySearchInteger = (
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check.
  * @returns The boundary value that satisfies the condition.
- * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
+ * @throws {RangeError} If invalid values or conditions are specified.
  */
 export const binarySearchBigint = (
 	alwaysEnd: bigint,
@@ -352,9 +352,9 @@ const shouldContinueDouble = (value1: number, value2: number): boolean => {
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), use the limit precision of double-precision floating-point values.
- * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check.
  * @returns The boundary value that satisfies the condition.
- * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
+ * @throws {RangeError} If invalid values or conditions are specified.
  */
 export const binarySearchDouble = (
 	alwaysEnd: number,
@@ -377,10 +377,8 @@ export const binarySearchDouble = (
 	safety: "check" | "nocheck" = "check",
 ): number => {
 	if (epsilon === "auto") {
-		if (safety === "check") {
-			if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
-				throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
-			}
+		if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
+			throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
 		}
 		return binarySearchGeneralized(
 			alwaysEnd,
@@ -1075,9 +1073,9 @@ export const bsUpperBound = binarySearchArrayInsertionRight;
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
  * @param midpoint - A function that determines the midpoint between two values.
  * @param shouldContinue - Determines whether to continue searching based on the difference between `never` and `always`.
- * @param safety - Controls runtime checks. Use `"nocheck"` to skip parameter checks.
+ * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check.
  * @returns The boundary value that satisfies the condition.
- * @throws {RangeError} If invalid values or conditions are specified (unless `safety` is `"nocheck"`).
+ * @throws {RangeError} If invalid values or conditions are specified.
  * @remarks Consider using {@link binarySearch} for primitive numeric (`number` and `bigint`) values.
  */
 export const binarySearchGeneralized = <T>(
