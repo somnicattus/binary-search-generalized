@@ -287,16 +287,18 @@ export const binarySearchBigint = (
 
 /**
  * @private
- * A DataView for reading the binary representation of floating-point numbers.
+ * A DataView for reading the binary representation of floating‑point numbers.
  */
 const view = new DataView(new ArrayBuffer(8));
 /**
  * @private
- * Returns the exponent of a double-precision floating-point number.
+ * Returns the exponent of a double‑precision floating‑point number.
  *
  * Equivalent to `log2(floor_to_base_2(abs(value)))`. More precise than `floor(log2(abs(value)))`.
- * @param value - The number whose exponent to return.
- * @returns The unbiased base-2 exponent of the value.
+ *
+ * Returns -1023 for 0.
+ * @param value - The number whose exponent is returned.
+ * @returns The unbiased base‑2 exponent of the value.
  */
 const getExponent = (value: number): number => {
 	view.setFloat64(0, value);
