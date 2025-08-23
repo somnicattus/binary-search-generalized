@@ -2,32 +2,32 @@ export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, 
     const alwaysIsLower = alwaysEnd < neverEnd;
     let low = alwaysIsLower ? alwaysEnd : neverEnd;
     let high = alwaysIsLower ? neverEnd : alwaysEnd;
-    if (safety === "check" || safety === "strict") {
-        if (typeof alwaysEnd !== typeof neverEnd ||
-            typeof epsilon !== typeof alwaysEnd) {
-            throw new RangeError("alwaysEnd, neverEnd, and epsilon must be of the same type");
+    if (typeof alwaysEnd !== typeof neverEnd ||
+        typeof epsilon !== typeof alwaysEnd) {
+        throw new TypeError("alwaysEnd, neverEnd, and epsilon must be of the same type");
+    }
+    if (epsilon <= 0) {
+        throw new RangeError("epsilon must be positive");
+    }
+    if (high - low < epsilon) {
+        throw new RangeError("alwaysEnd and neverEnd must be different within the epsilon range");
+    }
+    if (typeof epsilon === "number") {
+        if (!Number.isFinite(epsilon) ||
+            !Number.isFinite(alwaysEnd) ||
+            !Number.isFinite(neverEnd)) {
+            throw new RangeError("alwaysEnd, neverEnd, and epsilon must be finite numbers");
         }
+        if (high - epsilon === high || low + epsilon === low) {
+            throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
+        }
+    }
+    if (safety === "check" || safety === "strict") {
         if (!predicate(alwaysEnd)) {
             throw new RangeError("alwaysEnd must satisfy the condition");
         }
         if (predicate(neverEnd)) {
             throw new RangeError("neverEnd must not satisfy the condition");
-        }
-        if (epsilon <= 0) {
-            throw new RangeError("epsilon must be positive");
-        }
-        if (high - low < epsilon) {
-            throw new RangeError("alwaysEnd and neverEnd must be different within the epsilon range");
-        }
-        if (typeof epsilon === "number") {
-            if (!Number.isFinite(epsilon) ||
-                !Number.isFinite(alwaysEnd) ||
-                !Number.isFinite(neverEnd)) {
-                throw new RangeError("alwaysEnd, neverEnd, and epsilon must be finite numbers");
-            }
-            if (high - epsilon === high || low + epsilon === low) {
-                throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
-            }
         }
     }
     if (safety === "strict") {
@@ -53,11 +53,9 @@ export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, 
     return alwaysIsLower ? low : high;
 };
 export const binarySearchInteger = (alwaysEnd, neverEnd, predicate, safety = "check") => {
-    if (safety === "check") {
-        if (Number.isSafeInteger(alwaysEnd) === false ||
-            Number.isSafeInteger(neverEnd) === false) {
-            throw new RangeError("alwaysEnd and neverEnd must be safe integers");
-        }
+    if (Number.isSafeInteger(alwaysEnd) === false ||
+        Number.isSafeInteger(neverEnd) === false) {
+        throw new RangeError("alwaysEnd and neverEnd must be safe integers");
     }
     return binarySearch(alwaysEnd, neverEnd, predicate, (low, high) => Math.floor(low / 2 + high / 2), 1, safety);
 };
@@ -87,10 +85,8 @@ const shouldContinueDouble = (value1, value2) => {
 };
 export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "auto", safety = "check") => {
     if (epsilon === "auto") {
-        if (safety === "check") {
-            if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
-                throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
-            }
+        if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
+            throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
         }
         return binarySearchGeneralized(alwaysEnd, neverEnd, predicate, midpointDouble, shouldContinueDouble, safety);
     }
