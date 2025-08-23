@@ -315,6 +315,7 @@ const midpointDouble = (value1: number, value2: number): number => {
 	const exponent2 = getExponent(value2);
 	const diff = Math.abs(exponent1 - exponent2);
 	if (diff <= 1) return value1 / 2 + value2 / 2;
+	if (value1 !== 0 && value2 !== 0 && value1 > 0 !== value2 > 0) return 0;
 	return (exponent1 > exponent2 ? value1 : value2) * 2 ** -(diff / 2);
 };
 
