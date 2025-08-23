@@ -285,12 +285,31 @@ export const binarySearchBigint = (
 	);
 };
 
+/**
+ * @private
+ * A DataView for reading the binary representation of floating-point numbers.
+ */
 const view = new DataView(new ArrayBuffer(8));
+/**
+ * @private
+ * Returns the exponent of a double-precision floating-point number.
+ *
+ * Equivalent to `log2(floor_to_base_2(abs(value)))`. More precise than `floor(log2(abs(value)))`.
+ * @param value - The number whose exponent to return.
+ * @returns The unbiased base-2 exponent of the value.
+ */
 const getExponent = (value: number): number => {
 	view.setFloat64(0, value);
 	return ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
 };
 
+/**
+ * @private
+ * Returns the midpoint of two double-precision floating-point numbers using exponent for faster converge.
+ * @param value1 - The first value.
+ * @param value2 - The second value.
+ * @returns The midpoint of the two values.
+ */
 const midpointDouble = (value1: number, value2: number): number => {
 	const exponent1 = getExponent(value1);
 	const exponent2 = getExponent(value2);
@@ -299,6 +318,13 @@ const midpointDouble = (value1: number, value2: number): number => {
 	return (exponent1 > exponent2 ? value1 : value2) * 2 ** -(diff / 2);
 };
 
+/**
+ * @private
+ * Determines whether the binary search should continue based on the ulp of current values.
+ * @param value1 - The first value.
+ * @param value2 - The second value.
+ * @returns `true` if the search should continue, `false` otherwise.
+ */
 const shouldContinueDouble = (value1: number, value2: number): boolean => {
 	const max = Math.max(Math.abs(value1), Math.abs(value2));
 	const ulp = 2 ** (getExponent(max) - 52) || Number.MIN_VALUE;
