@@ -129,6 +129,12 @@ describe("binarySearchDouble", () => {
 				"epsilon must be representable at the precision of alwaysEnd and neverEnd",
 			);
 		});
+
+		it("should throw when alwaysEnd and neverEnd are not finite numbers with auto epsilon", () => {
+			expect(() =>
+				binarySearchDouble(Number.POSITIVE_INFINITY, 0, (v) => v > 1),
+			).toThrow("alwaysEnd and neverEnd must be finite numbers");
+		});
 	});
 
 	it("should not throw for unsafe parameter check", () => {
@@ -167,6 +173,17 @@ describe("binarySearchDouble", () => {
 		const never = Number.MIN_VALUE * 64;
 		const res = binarySearchDouble(always, never, (v) => v <= 0);
 		expect(res).toBe(0);
+	});
+
+	it("should not throw in nocheck mode even with -Infinity to Infinity range", () => {
+		const res = binarySearchDouble(
+			Number.NEGATIVE_INFINITY,
+			Number.POSITIVE_INFINITY,
+			(v) => v <= 0,
+			"auto",
+			"nocheck",
+		);
+		expect(res).toBe(Number.NEGATIVE_INFINITY);
 	});
 });
 

@@ -375,25 +375,9 @@ export const binarySearchDouble = (
 	safety: "check" | "nocheck" = "check",
 ): number => {
 	if (epsilon === "auto") {
-		if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
-			throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
-		}
-		const alwaysIsLower = alwaysEnd < neverEnd;
-		if (safety === "check" && typeof epsilon === "number") {
-			const high = alwaysIsLower ? neverEnd : alwaysEnd;
-			const low = alwaysIsLower ? alwaysEnd : neverEnd;
-			if (epsilon <= 0) {
-				throw new RangeError("epsilon must be positive");
-			}
-			if (high - low < epsilon) {
-				throw new RangeError(
-					"alwaysEnd and neverEnd must be different within the epsilon range",
-				);
-			}
-			if (high - epsilon === high || low + epsilon === low) {
-				throw new RangeError(
-					"epsilon must be representable at the precision of alwaysEnd and neverEnd",
-				);
+		if (safety === "check") {
+			if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
+				throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
 			}
 		}
 		return binarySearchGeneralized(
