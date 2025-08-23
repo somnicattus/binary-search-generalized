@@ -34,7 +34,6 @@
 	"scripts": {
 		"build": "bun tsc --project tsconfig.build.json && bun tsc --project tsconfig.types.json",
 		"pack": "npm pack",
-		"publish": "bun publish",
 		"test": "bun test",
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage --coverage-reporter=text --coverage-reporter=lcov"
