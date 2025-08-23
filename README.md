@@ -33,38 +33,82 @@ bun add binary-search-generalized
 import {
   binarySearchInteger,
   binarySearchDouble,
+  binarySearchBigint,
+  binarySearch,
+  binarySearchGeneralized,
   binarySearchArray,
   binarySearchArrayLast,
   binarySearchArrayInsertionLeft,
   binarySearchArrayInsertionRight,
 } from "binary-search-generalized";
 
-// Largest integer whose square <= 180 -> 13
-const n = binarySearchInteger(0, 100, v => v * v <= 180);
+// Integer search (e.g. the largest number whose square <= 180)
+const n = binarySearchInteger(
+  0,
+  100,
+  v => v * v <= 180,
+); // 13
 
 // Floating‑point search
-const angle = binarySearchDouble(0, Math.PI / 2, v => Math.sin(v) <= 0.5);
-// ~= Math.PI / 6
+const angle = binarySearchDouble(
+  0,
+  Math.PI / 2,
+  v => Math.sin(v) <= 0.5,
+); // ~= Math.PI / 6
+
+// Bigint search
+const b = binarySearchBigint(
+  100n,
+  0n,
+  v => (2n ** v) >= (10n ** 21n)
+); // 70n
+
+// Custom numeric subset via midpoint/epsilon (e.g. even numbers only)
+const even = binarySearch(
+  0,
+  100,
+  v => v * v <= 180,
+  (lo, hi) => Math.floor(lo / 4 + hi / 4) * 2,
+  2
+); // 12
+
+// Custom numeric subset via midpoint/shouldContinue (e.g. power of 2 only)
+const base2 = binarySearchGeneralized(
+  1,
+  2 ** 1023,
+  d => d <= 123456789,
+  (a, b) => 2 ** Math.floor((Math.log2(a) + Math.log2(b)) / 2),
+  (a, b) => b / a > 2, // continue while ratio > 2
+); // 2 ** 26
+
+// Custom domain via midpoint/shouldContinue (e.g. BigNumber.js)
+const bn = binarySearchGeneralized(
+  new BigNumber('0'),
+  new BigNumber('1000000000000000'),
+  v => v.isLessThan('100000000'),
+  (a, b) => a.plus(b).dividedBy(2).integerValue(BigNumber.ROUND_FLOOR),
+  (a, b) => b.minus(a).isGreaterThan(1),
+); // BigNumber('99999999')
 
 // Find in sorted arrays
-binarySearchArray(["apple", "banana", "cherry"], "cherry"); // 2
-binarySearchArray([9, 7, 7, 5, 3], 7); // 1 (descending handled)
+const idx1 = binarySearchArray(["apple", "banana", "cherry"], "cherry"); // 2
+const idx2 = binarySearchArray([9, 7, 7, 5, 3], 7); // 1 (descending handled)
 
 // First/last occurrence with duplicates
-binarySearchArray([1, 2, 2, 2, 3], 2); // 1 (first)
-binarySearchArrayLast([1, 2, 2, 2, 3], 2); // 3 (last)
+const idx3 = binarySearchArray([1, 2, 2, 2, 3], 2); // 1 (first)
+const idx4 = binarySearchArrayLast([1, 2, 2, 2, 3], 2); // 3 (last)
 // Aliases:
 // bsFindIndex === binarySearchArray
 // bsFindLastIndex === binarySearchArrayLast
 
 // Insertion points
-binarySearchArrayInsertionLeft([1, 3, 3, 5], 3); // 1 (before first 3)
-binarySearchArrayInsertionRight([1, 3, 3, 5], 3); // 3 (after last 3)
+const idx5 = binarySearchArrayInsertionLeft([1, 3, 3, 5], 3); // 1 (before first 3)
+const idx6 = binarySearchArrayInsertionRight([1, 3, 3, 5], 3); // 3 (after last 3)
 // Aliases:
 // bsInsertionLeft === binarySearchArrayInsertionLeft
 // bsInsertionRight === binarySearchArrayInsertionRight
-// bsLowerBound   === binarySearchArrayInsertionLeft
-// bsUpperBound   === binarySearchArrayInsertionRight
+// bsLowerBound === binarySearchArrayInsertionLeft
+// bsUpperBound === binarySearchArrayInsertionRight
 ```
 
 ## API
@@ -198,8 +242,36 @@ Insertion points (custom objects):
 import { binarySearchArrayInsertionLeft, binarySearchArrayInsertionRight } from "binary-search-generalized";
 const objs = [{ v: 1 }, { v: 3 }, { v: 3 }, { v: 5 }];
 const cmpObj = (a: { v: number }, b: { v: number }) => a.v - b.v;
-binarySearchArrayInsertionLeft(objs, { v: 3 }, cmpObj);   // 1
-binarySearchArrayInsertionRight(objs, { v: 3 }, cmpObj);  // 3
+const left = binarySearchArrayInsertionLeft(objs, { v: 3 }, cmpObj);   // 1
+const right = binarySearchArrayInsertionRight(objs, { v: 3 }, cmpObj);  // 3
+```
+
+Generalized numeric subset (custom midpoint/epsilon):
+
+```ts
+import { binarySearch } from "binary-search-generalized";
+// Search over even numbers only, for the largest even k with k^2 <= 180
+const evenK = binarySearch(
+  0,
+  100,
+  v => v * v <= 180,
+  (low, high) => Math.floor(low / 4 + high / 4) * 2, // midpoint is always even
+  2, // epsilon is the minimal step between distinct evens
+); // 12
+```
+
+Generalized numeric subset (custom midpoint/shouldContinue):
+
+```ts
+import { binarySearchGeneralized } from "binary-search-generalized";
+// Custom numeric subset via midpoint/shouldContinue (e.g. power of 2 only)
+const base2 = binarySearchGeneralized(
+  1,
+  2 ** 1023,
+  d => d <= 123456789,
+  (a, b) => 2 ** Math.floor((Math.log2(a) + Math.log2(b)) / 2), // midpoint is always power of 2
+  (a, b) => b / a > 2, // continue while ratio > 2
+); // 2 ** 26
 ```
 
 Generalized domain (`BigNumber`):
