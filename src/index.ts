@@ -174,7 +174,7 @@ export const binarySearch: {
 	if (safety === "strict") {
 		while (high - low > epsilon) {
 			const middle = midpoint(low, high);
-			if (middle >= high || middle <= low) {
+			if (Number.isNaN(middle) || middle >= high || middle <= low) {
 				throw new RangeError(
 					`midpoint function did not converge: got ${middle} with ${low} and ${high}`,
 				);

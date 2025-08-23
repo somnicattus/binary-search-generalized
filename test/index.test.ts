@@ -614,6 +614,19 @@ describe("binarySearch", () => {
 		expect(result).toBe(13n);
 	});
 
+	it("strict: throws when midpoint is NaN (number)", () => {
+		expect(() =>
+			binarySearch(
+				0,
+				100,
+				(v) => v <= 50,
+				() => Number.NaN, // produces NaN midpoint
+				1,
+				"strict",
+			),
+		).toThrow(/midpoint function did not converge/);
+	});
+
 	it("strict: throws when midpoint does not converge (bigint)", () => {
 		expect(() =>
 			binarySearch(
