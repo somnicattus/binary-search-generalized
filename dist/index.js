@@ -33,7 +33,7 @@ export const binarySearch = (alwaysEnd, neverEnd, predicate, midpoint, epsilon, 
     if (safety === "strict") {
         while (high - low > epsilon) {
             const middle = midpoint(low, high);
-            if (middle >= high || middle <= low) {
+            if (Number.isNaN(middle) || middle >= high || middle <= low) {
                 throw new RangeError(`midpoint function did not converge: got ${middle} with ${low} and ${high}`);
             }
             if (predicate(middle) === alwaysIsLower)
@@ -87,21 +87,9 @@ const shouldContinueDouble = (value1, value2) => {
 };
 export const binarySearchDouble = (alwaysEnd, neverEnd, predicate, epsilon = "auto", safety = "check") => {
     if (epsilon === "auto") {
-        if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
-            throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
-        }
-        const alwaysIsLower = alwaysEnd < neverEnd;
-        if (safety === "check" && typeof epsilon === "number") {
-            const high = alwaysIsLower ? neverEnd : alwaysEnd;
-            const low = alwaysIsLower ? alwaysEnd : neverEnd;
-            if (epsilon <= 0) {
-                throw new RangeError("epsilon must be positive");
-            }
-            if (high - low < epsilon) {
-                throw new RangeError("alwaysEnd and neverEnd must be different within the epsilon range");
-            }
-            if (high - epsilon === high || low + epsilon === low) {
-                throw new RangeError("epsilon must be representable at the precision of alwaysEnd and neverEnd");
+        if (safety === "check") {
+            if (!Number.isFinite(alwaysEnd) || !Number.isFinite(neverEnd)) {
+                throw new RangeError("alwaysEnd and neverEnd must be finite numbers");
             }
         }
         return binarySearchGeneralized(alwaysEnd, neverEnd, predicate, midpointDouble, shouldContinueDouble, safety);
