@@ -63,6 +63,8 @@ binarySearchArrayInsertionRight([1, 3, 3, 5], 3); // 3 (after last 3)
 // Aliases:
 // bsInsertionLeft === binarySearchArrayInsertionLeft
 // bsInsertionRight === binarySearchArrayInsertionRight
+// bsLowerBound   === binarySearchArrayInsertionLeft
+// bsUpperBound   === binarySearchArrayInsertionRight
 ```
 
 ## API
@@ -80,10 +82,11 @@ Find a numeric value in a specified range. All functions can search ascending or
   - Floating‑point search with precision control.
   - `epsilon` can be:
     - a positive number: absolute termination gap; must be representable at the scale of the endpoints
-    - "auto" (default): uses the representational limit of double‑precision floating‑point numbers.
+    - "auto" (default): uses a ULP‑based termination rule that adapts to the magnitude of the values.
 - `binarySearch(alwaysEnd, neverEnd, predicate, midpoint, epsilon, safety?) → number | bigint`
   - Generalized to primitive numeric types (`number`/`bigint`) using a custom `midpoint(low, high)`.
   - `midpoint` must strictly shrink the interval on each iteration (return a value strictly between the bounds so that one boundary moves) to guarantee termination.
+  - Supports safety modes: `"check"` (default), `"nocheck"` (skip endpoint precondition), and `"strict"` (validates that the midpoint strictly reduces the interval each iteration).
 - `binarySearchGeneralized(alwaysEnd, neverEnd, predicate, midpoint, shouldContinue, safety?) → T`
   - Generalized to any type `T` (e.g., `BigNumber` from bignumber.js).
   - You provide a `shouldContinue(always, never)` loop condition instead of `epsilon`.
@@ -91,7 +94,10 @@ Find a numeric value in a specified range. All functions can search ascending or
 #### Preconditions for Numeric API
 
 - All functions assume a monotonic `predicate` across the search range: once the `predicate` becomes true (or false), it stays that way.
-- `safety: "nocheck"` turns off precondition checks (no validation that `alwaysEnd` satisfies the predicate and `neverEnd` does not).
+- Safety modes:
+  - `"check"` (default): validates that `alwaysEnd` satisfies the predicate and `neverEnd` does not.
+  - `"nocheck"`: skips the endpoint precondition described above.
+  - `"strict"` (only for `binarySearch` over `number`/`bigint`): in addition to `"check"`, validates that each computed midpoint strictly reduces the interval; throws if not.
 
 ### Array
 

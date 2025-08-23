@@ -14,11 +14,11 @@
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param midpoint - A function that determines the midpoint between two values.
+ * @param midpoint - A function that returns a point strictly inside (low, high) so one bound moves each iteration.
  * @param epsilon - The maximum acceptable error margin for the search.
- * @param safety - Controls runtime checks. Use `"nocheck"` to turn off precondition check. Use `"strict"` to check midpoint convergence on every call.
- * @returns The boundary value that satisfies the condition.
- * @throws {RangeError | TypeError} If invalid values or conditions are specified.
+ * @param safety - Controls runtime checks. "nocheck" skips the endpoint precondition (`predicate(alwaysEnd)` is true and `predicate(neverEnd)` is false). "strict" additionally validates that each midpoint strictly reduces the interval.
+ * @returns The boundary value that satisfies the condition (the most extreme value on the "always" side).
+ * @throws {RangeError | TypeError} If invalid values or conditions are specified. "nocheck" only skips the endpoint precondition.
  * @remarks Consider using {@link binarySearchInteger}, {@link binarySearchDouble}, or {@link binarySearchBigint} for specific numeric types, and {@link binarySearchArray} for arrays.
  * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
  * @function
@@ -40,9 +40,9 @@ export const binarySearch: {
 	 * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
 	 * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
-	 * @param midpoint - A function that determines the midpoint between two values.
+	 * @param midpoint - A function that returns a point strictly inside (low, high) so one bound moves each iteration.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check`predicate` checks for `alwaysEnd` and `neverEnd`. Use `"strict"` to check midpoint convergence on every call.
+	 * @param safety - Controls runtime checks. "nocheck" skips the endpoint precondition (`predicate(alwaysEnd)` is true and `predicate(neverEnd)` is false). "strict" additionally checks that the midpoint strictly reduces the interval each iteration.
 	 * @returns The boundary value that satisfies the condition.
 	 * @throws {RangeError | TypeError} If invalid values or conditions are specified.
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
@@ -58,7 +58,7 @@ export const binarySearch: {
 		 */
 		predicate: (value: number) => boolean,
 		/**
-		 * A function that determines the midpoint between two values.
+		 * A function that returns a point strictly inside (low, high) so one bound moves each iteration.
 		 * @param low - The lower bound of the range.
 		 * @param high - The upper bound of the range.
 		 * @returns The midpoint between `low` and `high`.
@@ -87,9 +87,9 @@ export const binarySearch: {
 	 * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
 	 * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
 	 * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
-	 * @param midpoint - A function that determines the midpoint between two values.
+	 * @param midpoint - A function that returns a point strictly inside (low, high) so one bound moves each iteration.
 	 * @param epsilon - The maximum acceptable error margin for the search.
-	 * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check. Use `"strict"` to check midpoint convergence on every call.
+	 * @param safety - Controls runtime checks. "nocheck" skips the endpoint precondition (`predicate(alwaysEnd)` is true and `predicate(neverEnd)` is false). "strict" additionally checks that the midpoint strictly reduces the interval each iteration.
 	 * @returns The boundary value that satisfies the condition.
 	 * @throws {RangeError | TypeError} If invalid values or conditions are specified.
 	 * @see {@link binarySearchGeneralized} for non‑primitive numeric‑like values.
@@ -105,7 +105,7 @@ export const binarySearch: {
 		 */
 		predicate: (value: bigint) => boolean,
 		/**
-		 * A function that determines the midpoint between two values.
+		 * A function that returns a point strictly inside (low, high) so one bound moves each iteration.
 		 * @param low - The lower bound of the range.
 		 * @param high - The upper bound of the range.
 		 * @returns The midpoint between `low` and `high`.
@@ -213,7 +213,7 @@ export const binarySearch: {
  * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified.
- * @remarks In check mode, `alwaysEnd` and `neverEnd` must be safe integers (`Number.isSafeInteger`).
+ * @remarks `alwaysEnd` and `neverEnd` must be safe integers (`Number.isSafeInteger`).
  */
 export const binarySearchInteger = (
 	alwaysEnd: number,
@@ -309,7 +309,7 @@ const getExponent = (value: number): number => {
 
 /**
  * @private
- * Returns the midpoint of two double-precision floating-point numbers using exponent for faster converge.
+ * Returns a midpoint heuristic for double‑precision floating‑point numbers using exponents for faster convergence.
  * @param value1 - The first value.
  * @param value2 - The second value.
  * @returns The midpoint of the two values.
@@ -351,7 +351,7 @@ const shouldContinueDouble = (value1: number, value2: number): boolean => {
  * @param alwaysEnd - The value that always satisfies the condition and is one end of the range.
  * @param neverEnd - The value that never satisfies the condition and is the other end of the range.
  * @param predicate - A function that checks if a value satisfies the condition. This function should be monotonic within the range.
- * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), use the limit precision of double-precision floating-point values.
+ * @param epsilon - The maximum acceptable error margin for the search. By default (`"auto"`), uses a ULP‑based termination rule that adapts to the magnitude of the values.
  * @param safety - Controls runtime checks. Use `"nocheck"` to skip precondition check.
  * @returns The boundary value that satisfies the condition.
  * @throws {RangeError} If invalid values or conditions are specified.
@@ -714,7 +714,7 @@ export const bsFindLastIndex = binarySearchArrayLast;
  * const i2 = binarySearchArrayInsertionLeft([5], 6, 'asc'); // 1
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
  * @param target - The target value to find.
- * @param order - The order of the sorted array. If omitted, the function infers the order from the first and the last elements. Required when the array may contain only one element.
+ * @param order - The order of the sorted array. If omitted, the function infers the order from the first and last elements. Required when the array may contain only one element.
  * @param compareFn - Comparator used to sort the array. Returns a negative number if the first value is less than the second, a positive number if greater, and zero if equal.
  * @template T - The type of the elements in the sorted array.
  * @returns The index at which the target value should be inserted.
@@ -738,7 +738,7 @@ export const binarySearchArrayInsertionLeft: {
 	 * // array and insertedArray will be [-90, -45, 0, 0, 45, 90]
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
 	 * @param target - The target value to find.
-	 * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
+	 * @param order - The order of the sorted array. If not specified, the function infers the order from the first and last elements. Required if the array may contain only one element.
 	 * @template T - The type of the elements in the sorted array.
 	 * @returns The index at which the target value should be inserted.
 	 * @throws {RangeError} If the sortedArray has only one element and order is not specified.
@@ -765,7 +765,7 @@ export const binarySearchArrayInsertionLeft: {
 	 * // array and insertedArray will be [-90n, -45n, 0n, 0n, 45n, 90n]
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
 	 * @param target - The target value to find.
-	 * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
+	 * @param order - The order of the sorted array. If not specified, the function infers the order from the first and last elements. Required if the array may contain only one element.
 	 * @template T - The type of the elements in the sorted array.
 	 * @returns The index at which the target value should be inserted.
 	 * @throws {RangeError} If the sortedArray has only one element and order is not specified.
@@ -792,7 +792,7 @@ export const binarySearchArrayInsertionLeft: {
 	 * // array and insertedArray will be ['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry']
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
 	 * @param target - The target value to find.
-	 * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
+	 * @param order - The order of the sorted array. If not specified, the function infers the order from the first and last elements. Required if the array may contain only one element.
 	 * @template T - The type of the elements in the sorted array.
 	 * @returns The index at which the target value should be inserted.
 	 * @throws {RangeError} If the sortedArray has only one element and order is not specified.
@@ -891,7 +891,7 @@ export const bsLowerBound = binarySearchArrayInsertionLeft;
  * const j2 = binarySearchArrayInsertionRight([5], 4, 'asc'); // 0
  * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
  * @param target - The target value to find.
- * @param order - The order of the sorted array. If omitted, the function infers the order from the first two elements. Required if the array may contain only one element.
+ * @param order - The order of the sorted array. If omitted, the function infers the order from the first and last elements. Required if the array may contain only one element.
  * @param compareFn - Comparator used to sort the array. Returns a negative number if the first value is less than the second, a positive number if greater, and zero if equal.
  * @template T - The type of the elements in the sorted array.
  * @returns The index at which the target value should be inserted.
@@ -915,7 +915,7 @@ export const binarySearchArrayInsertionRight: {
 	 * // array and insertedArray will be [-90, -45, 0, 0, 45, 90]
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
 	 * @param target - The target value to find.
-	 * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
+	 * @param order - The order of the sorted array. If not specified, the function infers the order from the first and last elements. Required if the array may contain only one element.
 	 * @template T - The type of the elements in the sorted array.
 	 * @returns The index at which the target value should be inserted.
 	 * @throws {RangeError} If the sortedArray has only one element and order is not specified.
@@ -942,7 +942,7 @@ export const binarySearchArrayInsertionRight: {
 	 * // array and insertedArray will be [-90n, -45n, 0n, 0n, 45n, 90n]
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
 	 * @param target - The target value to find.
-	 * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
+	 * @param order - The order of the sorted array. If not specified, the function infers the order from the first and last elements. Required if the array may contain only one element.
 	 * @template T - The type of the elements in the sorted array.
 	 * @returns The index at which the target value should be inserted.
 	 * @throws {RangeError} If the sortedArray has only one element and order is not specified.
@@ -969,7 +969,7 @@ export const binarySearchArrayInsertionRight: {
 	 * // array and insertedArray will be ['apple', 'banana', 'cherry', 'cherry', 'date', 'elderberry']
 	 * @param sortedArray - The sorted array to search. It can be an array of `number`, `bigint`, `string`, or any type that can be compared using `compareFn`.
 	 * @param target - The target value to find.
-	 * @param order - The order of the sorted array. If not specified, the function will determine the order based on the first two elements. Required if the array may contain only one element.
+	 * @param order - The order of the sorted array. If not specified, the function infers the order from the first and last elements. Required if the array may contain only one element.
 	 * @template T - The type of the elements in the sorted array.
 	 * @returns The index at which the target value should be inserted.
 	 * @throws {RangeError} If the sortedArray has only one element and order is not specified.
