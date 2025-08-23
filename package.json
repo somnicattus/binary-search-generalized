@@ -1,6 +1,6 @@
 {
 	"name": "binary-search-generalized",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"description": "A generalized binary search implementation in TypeScript",
 	"keywords": ["binary search", "typescript", "algorithm"],
 	"type": "module",
