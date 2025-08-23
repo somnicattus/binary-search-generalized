@@ -296,7 +296,9 @@ const view = new DataView(new ArrayBuffer(8));
  *
  * Equivalent to `log2(floor_to_base_2(abs(value)))`. More precise than `floor(log2(abs(value)))`.
  *
- * Returns -1023 for 0.
+ * Edge cases:
+ *   - `-1023` for `±0` and subnormal values (value where `|value| < 2^-1022`)
+ *   - `1024` for `±Infinity` and `NaN`
  * @param value - The number whose exponent is returned.
  * @returns The unbiased base‑2 exponent of the value.
  */
