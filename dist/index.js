@@ -70,14 +70,14 @@ const getExponent = (value) => {
     return ((view.getUint16(0) & 0b0111111111110000) >> 4) - 1023;
 };
 const midpointDouble = (value1, value2) => {
+    if ((value1 > 0 && value2 < 0) || (value1 < 0 && value2 > 0))
+        return 0;
+    const sign = value1 > 0 || value2 > 0 ? 1 : -1;
     const exponent1 = getExponent(value1);
     const exponent2 = getExponent(value2);
-    const diff = Math.abs(exponent1 - exponent2);
-    if (diff <= 1)
+    if (Math.abs(exponent1 - exponent2) <= 1)
         return value1 / 2 + value2 / 2;
-    if (value1 !== 0 && value2 !== 0 && value1 > 0 !== value2 > 0)
-        return 0;
-    return (exponent1 > exponent2 ? value1 : value2) * 2 ** -(diff / 2);
+    return sign * 2 ** ((exponent1 + exponent2) / 2);
 };
 const shouldContinueDouble = (value1, value2) => {
     const max = Math.max(Math.abs(value1), Math.abs(value2));

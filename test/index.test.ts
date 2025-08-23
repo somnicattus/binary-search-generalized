@@ -176,6 +176,7 @@ describe("binarySearchDouble", () => {
 	});
 
 	it("should not throw in nocheck mode even with -Infinity to Infinity range", () => {
+		// NOTE: This test can cause infinite loop in some types of implementation
 		const res = binarySearchDouble(
 			Number.NEGATIVE_INFINITY,
 			Number.POSITIVE_INFINITY,
@@ -183,7 +184,7 @@ describe("binarySearchDouble", () => {
 			"auto",
 			"nocheck",
 		);
-		expect(res).toBe(Number.NEGATIVE_INFINITY);
+		expect(res).toBe(0);
 	});
 });
 

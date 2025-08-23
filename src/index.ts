@@ -315,12 +315,12 @@ const getExponent = (value: number): number => {
  * @returns The midpoint of the two values.
  */
 const midpointDouble = (value1: number, value2: number): number => {
+	if ((value1 > 0 && value2 < 0) || (value1 < 0 && value2 > 0)) return 0; // Pick one side for simplicity
+	const sign = value1 > 0 || value2 > 0 ? 1 : -1;
 	const exponent1 = getExponent(value1);
 	const exponent2 = getExponent(value2);
-	const diff = Math.abs(exponent1 - exponent2);
-	if (diff <= 1) return value1 / 2 + value2 / 2;
-	if (value1 !== 0 && value2 !== 0 && value1 > 0 !== value2 > 0) return 0;
-	return (exponent1 > exponent2 ? value1 : value2) * 2 ** -(diff / 2);
+	if (Math.abs(exponent1 - exponent2) <= 1) return value1 / 2 + value2 / 2;
+	return sign * 2 ** ((exponent1 + exponent2) / 2);
 };
 
 /**
