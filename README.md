@@ -10,7 +10,7 @@ Ultimately generalized binary search for TypeScript/JavaScript: numbers, bigints
 - Highly generalized, customizable binary search for many use cases
 - Precisely controlled API for integers, double‑precision floats, bigints, and arrays
 - Automatically handles both ascending and descending order
-- N‑dimensional generalization of grit point search by generator function
+- N‑dimensional generalization of grid point search by generator function
 - ESM-first, TypeScript-native, and fully documented
 
 ## Install
