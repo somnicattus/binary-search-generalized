@@ -10,6 +10,7 @@ Generalized binary search for TypeScript/JavaScript: numbers, bigints, sorted ar
 - Highly generalized, customizable binary search for many use cases
 - Precisely controlled API for integers, double‑precision floats, bigints, and arrays
 - Automatically handles both ascending and descending order
+- N‑dimensional generalization of grit point search by generator function
 - ESM-first, TypeScript-native, and fully documented
 
 ## Install
@@ -167,6 +168,22 @@ Overloads for `number | bigint | string` or a custom comparator for arbitrary ob
 - Order (asc/desc) is detected automatically for arrays with `length >= 2` when no comparator is provided.
   - For arrays of `length = 1`, you must specify `order` (`"asc" | "desc"`) or pass a `compareFn`; otherwise, a `RangeError` is thrown.
 
+### N‑dimensional
+
+Enumerate boundary points of a monotone region in D dimensions.
+
+- `ndBinarySearch(alwaysEnd, neverEnd, predicate, midpoint, shouldContinue) → Iterable<Vector<D, T>>`
+  - Yields vectors on the inside border; order is not guaranteed.
+  - `alwaysEnd` must satisfy `predicate` and `neverEnd` must not.
+  - `midpoint` and `shouldContinue` are arrays of per‑dimension functions of length `D` and must have the same length.
+  - Each dimension deactivates when `shouldContinue[i](always[i], never[i])` becomes false; the search stops when all dimensions deactivate.
+
+#### Preconditions for N‑dimensional API
+
+- Predicate monotonicity across the hyper‑rectangle from `alwaysEnd` to `neverEnd`.
+- Matching lengths for `midpoint` and `shouldContinue` arrays.
+- Per‑dimension midpoint must make progress toward convergence together with its `shouldContinue` rule (e.g., integer midpoint with gap‑based termination).
+
 ## Common pitfalls
 
 - Non‑monotonic predicate: `predicate` must not flip true/false multiple times across the range. If it’s not monotonic, results are undefined.
@@ -288,6 +305,38 @@ const found = binarySearchGeneralized(
   // Continue while the gap is > 1 to ensure convergence with the midpoint rounding
   (a, b) => b.minus(a).isGreaterThan(1),
 ); // BigNumber('99999999')
+```
+
+N‑dimensional search (ndBinarySearch):
+
+Find all grid points on the inside border of a monotone region in N dimensions. The generator function yields vectors on the boundary; order is not guaranteed.
+
+```ts
+import {
+  ndBinarySearch,
+  type Vector,
+  type Midpoint,
+  type Predicate,
+  type ShouldContinue,
+} from "binary-search-generalized/nd";
+
+// Quarter circle of radius r in the first quadrant (2D example)
+const r = 4;
+const always: Vector<2, number> = [0, 0];           // definitely inside
+const never: Vector<2, number> = [r, r];            // definitely outside
+const predicate: Predicate<2, number> = ([x, y]) => x * x + y * y < r * r;
+
+// Per-dimension midpoint and termination
+const mid = (a: number, b: number) => Math.floor((a + b) / 2);
+const cont = (a: number, b: number) => b - a > 1;   // continue while gap > 1
+const midpoint: Midpoint<2, number> = [mid, mid];
+const shouldContinue: ShouldContinue<2, number> = [cont, cont];
+
+const border = [
+  ...ndBinarySearch(always, never, predicate, midpoint, shouldContinue),
+];
+// Example (order not guaranteed):
+// [[0,3], [1,3], [2,2], [2,3], [3,0], [3,1], [3,2]]
 ```
 
 ## License
