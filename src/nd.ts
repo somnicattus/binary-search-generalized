@@ -37,7 +37,8 @@ const createContext = <
 		let result = 0;
 		for (let i = 0; i < length; i++) {
 			if (!d[i]) continue;
-			if (shouldContinue[i](always[i], never[i])) {
+			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
+			if (shouldContinue[i]!(always[i]!, never[i]!)) {
 				result++;
 			} else {
 				// Deactivate component i if shouldContinue[i] is false (enough converged against component i)
@@ -54,7 +55,8 @@ const createContext = <
 	) =>
 		midpoint.map((fn, i) =>
 			// Apply the midpoint function only to active components
-			d[i] ? fn(always[i], never[i]) : always[i],
+			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
+			d[i] ? fn(always[i]!, never[i]!) : always[i]!,
 		) as unknown as Vector<D, T>;
 
 	return {
@@ -87,17 +89,6 @@ type Division<D extends number, T> = {
 	readonly never: ReadonlyVector<D, T>;
 };
 
-/** Array.prototype.with */
-const vectorWith = <D extends number, T>(
-	vector: ReadonlyVector<D, T>,
-	index: number,
-	value: T,
-): Vector<D, T> => {
-	const result = vector.slice() as unknown as Vector<D, T>;
-	result[index] = value;
-	return result;
-};
-
 /** multiple Array.prototype.with */
 const vectorMergePartial = <D extends number, T>(
 	vector1: ReadonlyVector<D, T>,
@@ -106,7 +97,8 @@ const vectorMergePartial = <D extends number, T>(
 ): Vector<D, T> => {
 	const result = vector1.slice() as unknown as Vector<D, T>;
 	for (const index of indexes) {
-		result[index] = vector2[index];
+		// biome-ignore lint/style/noNonNullAssertion: index is always valid index
+		result[index] = vector2[index]!;
 	}
 	return result;
 };
