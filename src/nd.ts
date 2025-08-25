@@ -26,23 +26,21 @@ const createContext = <
 	if (midpoint.length !== shouldContinue.length) {
 		throw new Error("midpoint and shouldContinue must have the same length");
 	}
-	const length = midpoint.length;
 	/** Active components */
-	const d = Array.from({ length }, () => true);
+	const d = new Set(midpoint.keys());
 
 	const _continue = (
 		always: ReadonlyVector<D, T>,
 		never: ReadonlyVector<D, T>,
 	) => {
 		let result = 0;
-		for (let i = 0; i < length; i++) {
-			if (!d[i]) continue;
+		for (const i of d) {
 			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
 			if (shouldContinue[i]!(always[i]!, never[i]!)) {
 				result++;
 			} else {
 				// Deactivate component i if shouldContinue[i] is false (enough converged against component i)
-				d[i] = false;
+				d.delete(i);
 			}
 		}
 		// Continue while active components exist
@@ -56,7 +54,7 @@ const createContext = <
 		midpoint.map((fn, i) =>
 			// Apply the midpoint function only to active components
 			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
-			d[i] ? fn(always[i]!, never[i]!) : always[i]!,
+			d.has(i) ? fn(always[i]!, never[i]!) : always[i]!,
 		) as unknown as Vector<D, T>;
 
 	return {
@@ -121,7 +119,7 @@ const createDfsBinarySearch = <
 		 */
 		base: ReadonlyVector<D, T>,
 		baseResult: boolean,
-		done = 0,
+		done = -1,
 		omit = new Set<number>(),
 	): Generator<Division<D, T>> {
 		if (omit.size === 0) {
@@ -130,10 +128,9 @@ const createDfsBinarySearch = <
 				: { always: forward, never: base };
 			yield division;
 		}
-		if (omit.size === d.length) return;
-		for (let i = done; i < d.length; i++) {
-			// Skip inactive components and already checked components
-			if (!d[i]) continue;
+		if (omit.size === d.size) return;
+		// NOTE: Copy to array so that we avoid mutations by continuation checks
+		for (const i of [...d].filter((i) => i > done)) {
 			// omit transition i
 			omit.add(i);
 
@@ -155,7 +152,7 @@ const createDfsBinarySearch = <
 			yield { always, never };
 
 			// Generate all combinations without transition i, which can include boundary
-			yield* divide(forward, backward, base, baseResult, i + 1, omit);
+			yield* divide(forward, backward, base, baseResult, i, omit);
 
 			// All combinations without transition i are already generated, continue with transition i
 			omit.delete(i);
@@ -171,16 +168,16 @@ const createDfsBinarySearch = <
 		const backward = result ? division.always : division.never;
 
 		for (const { always, never } of divide(forward, backward, mid, result)) {
+			// Create a copy of the active components to restore later
 			const _d = [...d];
 			if (c(always, never)) {
-				// Create a copy of the active dimensions to restore later
 				// More division needed
 				yield* dfsBinarySearch({ always, never });
-				// Restore active dimensions deactivated by DFS
 			} else {
 				yield always;
 			}
-			d.splice(0, d.length, ..._d);
+			// Restore active components deactivated by DFS
+			_d.forEach((i) => d.add(i));
 		}
 	};
 	return dfsBinarySearch;
