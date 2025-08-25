@@ -5,12 +5,12 @@
 [![types](https://img.shields.io/badge/types-TypeScript-blue)](./dist/index.d.ts)
 [![codecov](https://codecov.io/gh/somnicattus/binary-search-generalized/branch/master/graph/badge.svg)](https://codecov.io/gh/somnicattus/binary-search-generalized)
 
-Generalized binary search for TypeScript/JavaScript: numbers, bigints, sorted arrays, and even non‑primitive domains via a pluggable midpoint.
+Ultimately generalized binary search for TypeScript/JavaScript: numbers, bigints, sorted arrays, custom domains and N-dimensional search.
 
 - Highly generalized, customizable binary search for many use cases
 - Precisely controlled API for integers, double‑precision floats, bigints, and arrays
 - Automatically handles both ascending and descending order
-- N‑dimensional generalization of grit point search by generator function
+- N‑dimensional generalization of grid point search by DFS generator function
 - ESM-first, TypeScript-native, and fully documented
 
 ## Install
