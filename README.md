@@ -347,7 +347,7 @@ const border = [
 
 See the 2D example below; the same per‑dimension midpoint/termination pattern applies to any D.
 
-![N-dimensional binary search](./images/ndbs.svg)
+![N-dimensional binary search](https://raw.githubusercontent.com/somnicattus/binary-search-generalized/master/images/ndbs.svg)
 
 ### How it works (high‑level)
 
