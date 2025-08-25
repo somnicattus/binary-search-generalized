@@ -85,12 +85,12 @@ type Division<D extends number, T> = {
 const vectorMergePartial = <D extends number, T>(
 	vector1: ReadonlyVector<D, T>,
 	vector2: ReadonlyVector<D, T>,
-	indexes: Iterable<number>,
+	components: Iterable<number>,
 ): Vector<D, T> => {
 	const result = vector1.slice() as unknown as Vector<D, T>;
-	for (const index of indexes) {
+	for (const i of components) {
 		// biome-ignore lint/style/noNonNullAssertion: index is always valid index
-		result[index] = vector2[index]!;
+		result[i] = vector2[i]!;
 	}
 	return result;
 };
