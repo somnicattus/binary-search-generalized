@@ -362,7 +362,7 @@ This is a practical generalization of 1 dimension binary search to N dimensions 
 
 The predicate is evaluated only on sub‑cells that actually straddle the boundary. A simple model is noted in `notes/ndbs-cost.ts`.
 
-The model gives `O(log(n))` with `D=1`, `O(n)` with `D=2` and `n=n1=n2`, `O(n^2)` with `D=3` and `n=n1=n2=n3`, and so on. The model gives `O(n1 + log(n2)/6))` with `D=2` and `n1<n2`. If `n1<n2`, `n1` reaches its limit earlier than `n2`, then start searching without `n1` (dimension is reduced from 2 to 1), with length `n2/n1`.
+The model gives `O(log(n))` with `D=1`, `O(n)` with `D=2` and `n=n1=n2`, `O(n^2)` with `D=3` and `n=n1=n2=n3`, and so on. The model gives `O(n1 + log(n2)/6))` with `D=2` and `n1<n2`. If `n1<n2`, `n1` reaches its limit earlier than `n2`, then start searching without `n1` (dimension is reduced from 2 to 1), with length `n2/n1`, for each cell already divided, `log(n1)`.
 
 ### Relation to known methods
 
