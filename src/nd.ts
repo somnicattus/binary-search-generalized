@@ -23,9 +23,6 @@ const createContext = <
 	midpoint: FixedLengthArray<(always: T, never: T) => T, D>,
 	shouldContinue: FixedLengthArray<(always: T, never: T) => boolean, D>,
 ) => {
-	if (midpoint.length !== shouldContinue.length) {
-		throw new Error("midpoint and shouldContinue must have the same length");
-	}
 	/** Active components */
 	const d = new Set(midpoint.keys());
 
@@ -190,6 +187,13 @@ export const ndBinarySearch = function* <D extends number, T>(
 	midpoint: FixedLengthArray<(always: T, never: T) => T, D>,
 	shouldContinue: FixedLengthArray<(always: T, never: T) => boolean, D>,
 ) {
+	if (
+		alwaysEnd.length !== neverEnd.length ||
+		neverEnd.length !== midpoint.length ||
+		midpoint.length !== shouldContinue.length
+	) {
+		throw new Error("All input vectors must have the same length");
+	}
 	const ctx = createContext(predicate, midpoint, shouldContinue);
 	const dfsBinarySearch = createDfsBinarySearch(ctx);
 	yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd });
