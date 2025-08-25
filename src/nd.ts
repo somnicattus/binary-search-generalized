@@ -60,10 +60,7 @@ const createContext = <
 		/** continue */
 		c: _continue,
 		/** midpoint */
-		m: _midpoint as (
-			always: ReadonlyVector<D, T>,
-			never: ReadonlyVector<D, T>,
-		) => Vector<D, T>,
+		m: _midpoint,
 		/**
 		 * array of active components.
 		 * `c: continue` mutates activation.
