@@ -115,10 +115,6 @@ const createDfsBinarySearch = <
 	const divide = function* (
 		forward: ReadonlyVector<D, T>,
 		backward: ReadonlyVector<D, T>,
-		/**
-		 * - midpoint when done = 0
-		 * - midpoint with backward components 0 <= i < done when done > 0
-		 */
 		base: ReadonlyVector<D, T>,
 		baseResult: boolean,
 		done = 0,
