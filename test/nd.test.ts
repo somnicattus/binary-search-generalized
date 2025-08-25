@@ -11,7 +11,7 @@ describe("ndBinarySearch", () => {
 	it("should find the correct border", () => {
 		const r = 4;
 		const alwaysEnd: Vector<3, number> = [0, 0, 0];
-		const neverEnd: Vector<3, number> = [r, r * 2, r * 3];
+		const neverEnd: Vector<3, number> = [r * 4, r * 2, r * 3];
 		const predicate: Predicate<3, number> = (vector: Vector<3, number>) =>
 			vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2 < r ** 2; // Sphere equation
 		const mid = (always: number, never: number) =>
