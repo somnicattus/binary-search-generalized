@@ -29,7 +29,7 @@ const _pointsPerCellInner = (d: number, k: number) =>
 	// Select k dimensions, get farthest points in (d - k) dimensions ("combinations of dimensions")
 	Combination(d, k) /
 	// Each point is evaluated if it doesn't include already determined "combinations of dimensions"
-	Exp2(Sum(1, k - 1, (j) => _pointsPerCellInner(d, j)));
+	Exp2(Sum(1, k - 1, (j) => _pointsPerCellInner(d - 1, j)));
 
 /** Calculate the expected number of evaluated points for each rectangular cell in a d-dimensional space */
 const pointsPerCell = (d: number) =>
