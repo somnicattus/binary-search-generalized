@@ -23,7 +23,7 @@ const l = [1];
 
 /** dimension lengths ratios */
 // biome-ignore lint/style/noNonNullAssertion: d must be valid dimension index
-const r = (d: number) => l[d]! / l[d - 1]!;
+const r = (i: number) => l[i]! / l[i - 1]!;
 
 const _pointsPerCellInner = (d: number, k: number) =>
 	// Select k dimensions, get farthest points in (d - k) dimensions ("combinations of dimensions")
@@ -35,17 +35,18 @@ const _pointsPerCellInner = (d: number, k: number) =>
 const pointsPerCell = (d: number) =>
 	Sum(0, d - 1, (k) => _pointsPerCellInner(d, k));
 
-/** Calculate the expected total number of rectangular cells computed in a d-dimensional space */
-const numberOfCells = (d: number) =>
-	Sum(1, Log2(r(d)), (i) => Exp2((d - 1) * i));
+/** Calculate the expected total number of rectangular cells computed in a D-dimensional space */
+const numberOfCells = (i: number) =>
+	Sum(1, Log2(r(i)), (j) => Exp2((D - i) * j));
 
-// numberOfCells = Sum(1, Log2(r(d)), (i) => Exp2((d - 1) * i))
-// = (Exp2((d - 1) ** (Log2(r(d)) + 1)) - 1) / (Exp2(d - 1) - 1) - 1;
-// = (Exp2(d - 1) * r(d) ** (d - 1) - 1) / (Exp2(d - 1) - 1) - 1;
-// = (Exp2(d - 1) * (r(d) ** (d - 1) - 1)) / (Exp2(d - 1) - 1);
+// numberOfCells = Sum(1, Log2(r(i)), (i) => Exp2((D - i) * i))
+// = (Exp2((D - i) ** (Log2(r(i)) + 1)) - 1) / (Exp2(D - i) - 1) - 1;
+// = (Exp2(D - i) * r(i) ** (D - i) - 1) / (Exp2(D - i) - 1) - 1;
+// = (Exp2(D - i) * (r(i) ** (D - i) - 1)) / (Exp2(D - i) - 1);
 
-const expectedCalculationsForD = (d: number) =>
-	numberOfCells(d) * (predicate * pointsPerCell(d) + continuation + midpoint);
+const _expectedCalculationsInner = (i: number) =>
+	numberOfCells(i) *
+	(predicate * pointsPerCell(D - i) + continuation + midpoint);
 
 const expectedCalculations = () =>
-	Sum(1, D, (d) => numberOfCells(d - 1) * expectedCalculationsForD(d));
+	Sum(1, D, (i) => (numberOfCells(i) / 2) * _expectedCalculationsInner(i));
