@@ -354,7 +354,7 @@ See the 2D example below; the same per‑dimension midpoint/termination pattern 
 - The algorithm maintains two D‑vectors for a sub‑cell: an “always” point (inside/true) and a “never” point (outside/false). For the current cell it probes the vector midpoint `m(always, never)` component‑wise, evaluates the predicate there, and splits to the side that straddles the boundary.
 - It then enumerates all “dimension transition” combinations that actually cross the boundary. For each such combination it recurses only on still‑active dimensions. A dimension is deactivated as soon as its per‑dimension `shouldContinue[i](a, n)` becomes false (e.g., gap ≤ 1 for integer grids).
 - The generator yields inside‑border grid points (the “always” corner at convergence). Output order is unspecified and may depend on DFS.
-- BFS version is also technically realizable with more time-efficient and less space-inefficient.
+- BFS version is also technically realizable with more time-efficient and less space-efficient.
 
 This is a practical generalization of 1 dimension binary search to N dimensions on a grid.
 
