@@ -184,6 +184,8 @@ Enumerate boundary points of a monotone region in D dimensions.
 - Matching lengths for `midpoint` and `shouldContinue` arrays.
 - Per‑dimension midpoint must make progress toward convergence together with its `shouldContinue` rule (e.g., integer midpoint with gap‑based termination).
 
+See also: [README § Technical notes about N‑dimensional search](#technical-notes-about-n-dimensional-search)
+
 ## Common pitfalls
 
 - Non‑monotonic predicate: `predicate` must not flip true/false multiple times across the range. If it’s not monotonic, results are undefined.
@@ -338,6 +340,34 @@ const border = [
 // Example (order not guaranteed):
 // [[0,3], [1,3], [2,2], [2,3], [3,0], [3,1], [3,2]]
 ```
+
+## Technical notes about N-dimensional search
+
+### 2D illustration
+
+See the 2D example below; the same per‑dimension midpoint/termination pattern applies to any D.
+
+![N-dimensional binary search](./images/ndbs.svg)
+
+### How it works (high‑level)
+
+- The algorithm maintains two D‑vectors for a sub‑cell: an “always” point (inside/true) and a “never” point (outside/false). For the current cell it probes the vector midpoint `m(always, never)` component‑wise, evaluates the predicate there, and splits to the side that straddles the boundary.
+- It then enumerates all “dimension transition” combinations that actually cross the boundary. For each such combination it recurses only on still‑active dimensions. A dimension is deactivated as soon as its per‑dimension `shouldContinue[i](a, n)` becomes false (e.g., gap ≤ 1 for integer grids).
+- The generator yields inside‑border grid points (the “always” corner at convergence). Output order is unspecified and may depend on DFS.
+- BFS version is also technically realizable with more time-efficient and less space-inefficient.
+
+This is a practical generalization of 1 dimension binary search to N dimensions on a grid.
+
+### Cost model (informal)
+
+The predicate is evaluated only on sub‑cells that actually straddle the boundary. A simple model is noted in `notes/ndbs-cost.ts`.
+
+The model gives `O(log(n))` with `D=1`, `O(n)` with `D=2` and `n=n1=n2`, `O(n^2)` with `D=3` and `n=n1=n2=n3`, and so on. The model gives `O(2n1 + log(n2/n1))` with `D=2` and `n1<n2`. If `n1<n2`, `n1` reaches its limit earlier than `n2`, then start searching without `n1` (dimension is reduced from `D` to `D-1`), with length `n2/n1`.
+
+### Relation to known methods
+
+- 2D sorted‑matrix search (staircase walk) starts from a corner and moves left/down (or up/right) in O(m+n). `ndBinarySearch` instead probes midpoints and divides recursively; it’s conceptually different though both target monotone boundaries.
+- It is not a k‑d tree/BSP builder; no spatial index is constructed. It directly enumerates boundary grid points of a monotone decision function.
 
 ## License
 
