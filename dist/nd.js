@@ -38,19 +38,19 @@ const createDivide = (predicate) => {
     return divide;
 };
 const createDfsBinarySearch = (predicate, divide, midpoint, shouldContinue) => {
-    const dfsBinarySearch = function* (division, activeComponents) {
-        const components = shouldContinue(division, activeComponents);
-        if (components.size === 0) {
+    const dfsBinarySearch = function* (division, components) {
+        const _components = shouldContinue(division, components);
+        if (_components.size === 0) {
             yield division.always;
             return;
         }
-        const mid = midpoint(division, components);
+        const mid = midpoint(division, _components);
         const result = predicate(mid);
         const forward = result ? division.never : division.always;
         const backward = result ? division.always : division.never;
-        const divisions = divide(forward, backward, mid, result, components);
-        for (const { always, never } of divisions) {
-            yield* dfsBinarySearch({ always, never }, components);
+        const divisions = divide(forward, backward, mid, result, _components);
+        for (const division of divisions) {
+            yield* dfsBinarySearch(division, _components);
         }
     };
     return dfsBinarySearch;

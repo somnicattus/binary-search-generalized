@@ -73,9 +73,9 @@ const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
 		// Track all divisions with some omitted components
 		for (const i of components) {
 			if (_done.has(i)) continue;
-			_done.add(i); // [0]
+			_done.add(i);
 
-			// Check whether the result changes between "mid" and "omitted"
+			// Check whether the result changes between "mid" and "omitted" forward
 			const omitted = vectorWith(forward, i, mid[i]);
 			if (predicate(omitted) === result) {
 				// If not, skip this and subsequent divisions:
@@ -95,35 +95,29 @@ const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
 const createDfsBinarySearch = <D extends number, T>(
 	predicate: Predicate<D, T>,
 	divide: ReturnType<typeof createDivide<D, T>>,
-	midpoint: (
-		division: Division<D, T>,
-		activeComponents: Set<D>,
-	) => Vector<D, T>,
-	shouldContinue: (
-		division: Division<D, T>,
-		activeComponents: Set<D>,
-	) => Set<D>,
+	midpoint: (division: Division<D, T>, components: Set<D>) => Vector<D, T>,
+	shouldContinue: (division: Division<D, T>, components: Set<D>) => Set<D>,
 ) => {
 	const dfsBinarySearch = function* (
 		division: Division<D, T>,
-		activeComponents: Set<D>,
+		components: Set<D>,
 	): Generator<Vector<D, T>> {
-		const components = shouldContinue(division, activeComponents);
-		if (components.size === 0) {
+		const _components = shouldContinue(division, components);
+		if (_components.size === 0) {
 			yield division.always;
 			return;
 		}
 
-		const mid = midpoint(division, components);
+		const mid = midpoint(division, _components);
 		const result = predicate(mid);
 
 		const forward = result ? division.never : division.always;
 		const backward = result ? division.always : division.never;
 
-		const divisions = divide(forward, backward, mid, result, components);
+		const divisions = divide(forward, backward, mid, result, _components);
 
-		for (const { always, never } of divisions) {
-			yield* dfsBinarySearch({ always, never }, components);
+		for (const division of divisions) {
+			yield* dfsBinarySearch(division, _components);
 		}
 	};
 
