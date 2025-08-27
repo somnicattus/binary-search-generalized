@@ -46,11 +46,11 @@ const createMidpoint =
 
 /** Array.prototype.with */
 const vectorWith = <D extends number, T>(
-	vector1: ReadonlyVector<D, T>,
+	vector: ReadonlyVector<D, T>,
 	index: D,
 	value: T,
 ): Vector<D, T> => {
-	const result = vector1.slice() as unknown as Vector<D, T>;
+	const result = vector.slice() as unknown as Vector<D, T>;
 	result[index] = value;
 	return result;
 };
