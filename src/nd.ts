@@ -13,6 +13,10 @@ export type ShouldContinue<D extends number, T> = FixedLengthArray<
 	(always: T, never: T) => boolean,
 	D
 >;
+type Division<D extends number, T> = {
+	readonly always: ReadonlyVector<D, T>;
+	readonly never: ReadonlyVector<D, T>;
+};
 
 const createShouldContinue =
 	<D extends number, T>(shouldContinue: ShouldContinue<D, T>) =>
@@ -39,11 +43,6 @@ const createMidpoint =
 			components.has(i as D) ? fn(always[i]!, never[i]!) : always[i]!,
 		) as unknown as Vector<D, T>;
 	};
-
-type Division<D extends number, T> = {
-	readonly always: ReadonlyVector<D, T>;
-	readonly never: ReadonlyVector<D, T>;
-};
 
 /** Array.prototype.with */
 const vectorWith = <D extends number, T>(
@@ -95,8 +94,8 @@ const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
 const createDfsBinarySearch = <D extends number, T>(
 	predicate: Predicate<D, T>,
 	divide: ReturnType<typeof createDivide<D, T>>,
-	midpoint: (division: Division<D, T>, components: Set<D>) => Vector<D, T>,
-	shouldContinue: (division: Division<D, T>, components: Set<D>) => Set<D>,
+	midpoint: ReturnType<typeof createMidpoint<D, T>>,
+	shouldContinue: ReturnType<typeof createShouldContinue<D, T>>,
 ) => {
 	const dfsBinarySearch = function* (
 		division: Division<D, T>,
