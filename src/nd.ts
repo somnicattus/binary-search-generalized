@@ -14,171 +14,126 @@ export type ShouldContinue<D extends number, T> = FixedLengthArray<
 	D
 >;
 
-const createContext = <
-	D extends number,
-	T,
-	P extends (vector: NoInfer<Vector<D, T>>) => boolean,
->(
-	predicate: P,
-	midpoint: FixedLengthArray<(always: T, never: T) => T, D>,
-	shouldContinue: FixedLengthArray<(always: T, never: T) => boolean, D>,
-) => {
-	/** Active components */
-	const d = new Set(midpoint.keys());
-
-	const _continue = (
-		always: ReadonlyVector<D, T>,
-		never: ReadonlyVector<D, T>,
-	) => {
-		let result = 0;
-		for (const i of d) {
-			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
-			if (shouldContinue[i]!(always[i]!, never[i]!)) {
-				result++;
-			} else {
-				// Deactivate component i if shouldContinue[i] is false (enough converged against component i)
-				d.delete(i);
+export const createShouldContinue =
+	<D extends number, T>(shouldContinue: ShouldContinue<D, T>) =>
+	(division: Division<D, T>, components: Set<D>) => {
+		const { always, never } = division;
+		const result = new Set<D>();
+		for (const i of components) {
+			// Activate component i if shouldContinue[i] returns true (false means component i has converged sufficiently)
+			if (shouldContinue[i](always[i], never[i])) {
+				result.add(i);
 			}
 		}
-		// Continue while active components exist
 		return result;
 	};
 
-	const _midpoint = (
-		always: ReadonlyVector<D, T>,
-		never: ReadonlyVector<D, T>,
-	) =>
-		midpoint.map((fn, i) =>
+const createMidpoint =
+	<D extends number, T>(midpoint: Midpoint<D, T>) =>
+	(division: Division<D, T>, components: Set<D>) => {
+		const { always, never } = division;
+		return midpoint.map((fn, i) =>
 			// Apply the midpoint function only to active components
-			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
-			d.has(i) ? fn(always[i]!, never[i]!) : always[i]!,
+			components.has(i as D) ? fn(always[i], never[i]) : always[i],
 		) as unknown as Vector<D, T>;
-
-	return {
-		/** predicate */
-		p: predicate,
-		/** continue */
-		c: _continue,
-		/** midpoint */
-		m: _midpoint,
-		/**
-		 * array of active components.
-		 * `c: continue` mutates activation.
-		 * must be reset after recursive calls.
-		 */
-		d,
-	} as const;
-};
-
-type Context<
-	D extends number,
-	T,
-	P extends (vector: ReadonlyVector<D, T>) => boolean,
-> = ReturnType<typeof createContext<D, T, P>>;
+	};
 
 type Division<D extends number, T> = {
 	readonly always: ReadonlyVector<D, T>;
 	readonly never: ReadonlyVector<D, T>;
 };
 
-/** multiple Array.prototype.with */
-const vectorMergePartial = <D extends number, T>(
+/** Array.prototype.with */
+const vectorWith = <D extends number, T>(
 	vector1: ReadonlyVector<D, T>,
-	vector2: ReadonlyVector<D, T>,
-	components: Iterable<number>,
+	index: D,
+	value: T,
 ): Vector<D, T> => {
 	const result = vector1.slice() as unknown as Vector<D, T>;
-	for (const i of components) {
-		// biome-ignore lint/style/noNonNullAssertion: index is always valid index
-		result[i] = vector2[i]!;
-	}
+	result[index] = value;
 	return result;
 };
 
-const createDfsBinarySearch = <
-	D extends number,
-	T,
-	P extends (point: ReadonlyVector<D, T>) => boolean,
->(
-	ctx: Context<D, T, P>,
-) => {
-	const { p, m, c, d } = ctx;
-
+const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
 	const divide = function* (
 		forward: ReadonlyVector<D, T>,
 		backward: ReadonlyVector<D, T>,
-		base: ReadonlyVector<D, T>,
-		baseResult: boolean,
-		done = -1,
-		omit = new Set<number>(),
+		mid: ReadonlyVector<D, T>,
+		result: boolean,
+		components: ReadonlySet<D>,
+		done: ReadonlySet<D> = new Set(),
 	): Generator<Division<D, T>> {
-		if (omit.size === 0) {
-			const division = baseResult
-				? { always: base, never: forward }
-				: { always: forward, never: base };
-			yield division;
-		}
-		if (omit.size === d.size) return;
-		// NOTE: Copy to array so that we avoid mutations by continuation checks
-		for (const i of [...d].filter((i) => i > done)) {
-			// omit transition i
-			omit.add(i);
+		// Division with no omit must include boundary
+		yield result
+			? { always: mid, never: forward }
+			: { always: forward, never: mid };
+		const _done = new Set<D>(done);
+		// Track all divisions with some omitted components
+		for (const i of components) {
+			if (_done.has(i)) continue;
+			_done.add(i); // [0]
 
-			// check if result changes between "base" and "forward without transition i"
-			const newForward = vectorMergePartial(forward, base, omit);
-			const newBackward = vectorMergePartial(base, backward, omit);
-			const newResult = p(newForward);
-
-			// All combinations without transition i won't include boundary
-			if (newResult === baseResult) {
-				omit.delete(i);
+			// Check whether the result changes between "mid" and "omitted"
+			const omitted = vectorWith(forward, i, mid[i]);
+			if (predicate(omitted) === result) {
+				// If not, skip this and subsequent divisions:
+				// this combination of omitted components makes a boundary-including division impossible.
 				continue;
 			}
+			const counter = vectorWith(mid, i, backward[i]);
 
-			const always = baseResult ? newBackward : newForward;
-			const never = baseResult ? newForward : newBackward;
-
-			// This division includes boundary
-			yield { always, never };
-
-			// Generate all combinations without transition i, which can include boundary
-			yield* divide(forward, backward, base, baseResult, i, omit);
-
-			// All combinations without transition i are already generated, continue with transition i
-			omit.delete(i);
+			// If the result changes, yield this division.
+			// Subsequent divisions may include the boundary.
+			yield* divide(omitted, backward, counter, result, components, _done);
 		}
 	};
+	return divide;
+};
 
+const createDfsBinarySearch = <D extends number, T>(
+	predicate: Predicate<D, T>,
+	divide: ReturnType<typeof createDivide<D, T>>,
+	midpoint: (
+		division: Division<D, T>,
+		activeComponents: Set<D>,
+	) => Vector<D, T>,
+	shouldContinue: (
+		division: Division<D, T>,
+		activeComponents: Set<D>,
+	) => Set<D>,
+) => {
 	const dfsBinarySearch = function* (
 		division: Division<D, T>,
+		activeComponents: Set<D>,
 	): Generator<Vector<D, T>> {
-		const mid = m(division.always, division.never);
-		const result = p(mid);
+		const components = shouldContinue(division, activeComponents);
+		if (components.size === 0) {
+			yield division.always;
+			return;
+		}
+
+		const mid = midpoint(division, components);
+		const result = predicate(mid);
+
 		const forward = result ? division.never : division.always;
 		const backward = result ? division.always : division.never;
 
-		for (const { always, never } of divide(forward, backward, mid, result)) {
-			// Create a copy of the active components to restore later
-			const _d = [...d];
-			if (c(always, never)) {
-				// More division needed
-				yield* dfsBinarySearch({ always, never });
-			} else {
-				yield always;
-			}
-			// Restore active components deactivated by DFS
-			_d.forEach((i) => d.add(i));
+		const divisions = divide(forward, backward, mid, result, components);
+
+		for (const { always, never } of divisions) {
+			yield* dfsBinarySearch({ always, never }, components);
 		}
 	};
+
 	return dfsBinarySearch;
 };
 
 export const ndBinarySearch = function* <D extends number, T>(
 	alwaysEnd: ReadonlyVector<D, T>,
 	neverEnd: ReadonlyVector<D, T>,
-	predicate: (vector: ReadonlyVector<D, T>) => boolean,
-	midpoint: FixedLengthArray<(always: T, never: T) => T, D>,
-	shouldContinue: FixedLengthArray<(always: T, never: T) => boolean, D>,
+	predicate: Predicate<D, T>,
+	midpoint: Midpoint<D, T>,
+	shouldContinue: ShouldContinue<D, T>,
 ) {
 	if (
 		alwaysEnd.length !== neverEnd.length ||
@@ -187,7 +142,10 @@ export const ndBinarySearch = function* <D extends number, T>(
 	) {
 		throw new Error("All input vectors must have the same length");
 	}
-	const ctx = createContext(predicate, midpoint, shouldContinue);
-	const dfsBinarySearch = createDfsBinarySearch(ctx);
-	yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd });
+	const divide = createDivide(predicate);
+	const m = createMidpoint(midpoint);
+	const c = createShouldContinue(shouldContinue);
+	const dfsBinarySearch = createDfsBinarySearch(predicate, divide, m, c);
+	const components = new Set<D>(Array.from(alwaysEnd, (_, i) => i as D));
+	yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd }, components);
 };
