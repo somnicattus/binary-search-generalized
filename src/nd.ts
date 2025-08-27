@@ -14,14 +14,15 @@ export type ShouldContinue<D extends number, T> = FixedLengthArray<
 	D
 >;
 
-export const createShouldContinue =
+const createShouldContinue =
 	<D extends number, T>(shouldContinue: ShouldContinue<D, T>) =>
 	(division: Division<D, T>, components: Set<D>) => {
 		const { always, never } = division;
 		const result = new Set<D>();
 		for (const i of components) {
 			// Activate component i if shouldContinue[i] returns true (false means component i has converged sufficiently)
-			if (shouldContinue[i](always[i], never[i])) {
+			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
+			if (shouldContinue[i]!(always[i]!, never[i]!)) {
 				result.add(i);
 			}
 		}
@@ -34,7 +35,8 @@ const createMidpoint =
 		const { always, never } = division;
 		return midpoint.map((fn, i) =>
 			// Apply the midpoint function only to active components
-			components.has(i as D) ? fn(always[i], never[i]) : always[i],
+			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
+			components.has(i as D) ? fn(always[i]!, never[i]!) : always[i]!,
 		) as unknown as Vector<D, T>;
 	};
 

@@ -1,73 +1,56 @@
-const createContext = (predicate, midpoint, shouldContinue) => {
-    const d = new Set(midpoint.keys());
-    const _continue = (always, never) => {
-        let result = 0;
-        for (const i of d) {
-            if (shouldContinue[i](always[i], never[i])) {
-                result++;
-            }
-            else {
-                d.delete(i);
-            }
-        }
-        return result;
-    };
-    const _midpoint = (always, never) => midpoint.map((fn, i) => d.has(i) ? fn(always[i], never[i]) : always[i]);
-    return {
-        p: predicate,
-        c: _continue,
-        m: _midpoint,
-        d,
-    };
-};
-const vectorMergePartial = (vector1, vector2, components) => {
-    const result = vector1.slice();
+const createShouldContinue = (shouldContinue) => (division, components) => {
+    const { always, never } = division;
+    const result = new Set();
     for (const i of components) {
-        result[i] = vector2[i];
+        if (shouldContinue[i](always[i], never[i])) {
+            result.add(i);
+        }
     }
     return result;
 };
-const createDfsBinarySearch = (ctx) => {
-    const { p, m, c, d } = ctx;
-    const divide = function* (forward, backward, base, baseResult, done = -1, omit = new Set()) {
-        if (omit.size === 0) {
-            const division = baseResult
-                ? { always: base, never: forward }
-                : { always: forward, never: base };
-            yield division;
-        }
-        if (omit.size === d.size)
-            return;
-        for (const i of [...d].filter((i) => i > done)) {
-            omit.add(i);
-            const newForward = vectorMergePartial(forward, base, omit);
-            const newBackward = vectorMergePartial(base, backward, omit);
-            const newResult = p(newForward);
-            if (newResult === baseResult) {
-                omit.delete(i);
+const createMidpoint = (midpoint) => (division, components) => {
+    const { always, never } = division;
+    return midpoint.map((fn, i) => components.has(i) ? fn(always[i], never[i]) : always[i]);
+};
+const vectorWith = (vector1, index, value) => {
+    const result = vector1.slice();
+    result[index] = value;
+    return result;
+};
+const createDivide = (predicate) => {
+    const divide = function* (forward, backward, mid, result, components, done = new Set()) {
+        yield result
+            ? { always: mid, never: forward }
+            : { always: forward, never: mid };
+        const _done = new Set(done);
+        for (const i of components) {
+            if (_done.has(i))
+                continue;
+            _done.add(i);
+            const omitted = vectorWith(forward, i, mid[i]);
+            if (predicate(omitted) === result) {
                 continue;
             }
-            const always = baseResult ? newBackward : newForward;
-            const never = baseResult ? newForward : newBackward;
-            yield { always, never };
-            yield* divide(forward, backward, base, baseResult, i, omit);
-            omit.delete(i);
+            const counter = vectorWith(mid, i, backward[i]);
+            yield* divide(omitted, backward, counter, result, components, _done);
         }
     };
-    const dfsBinarySearch = function* (division) {
-        const mid = m(division.always, division.never);
-        const result = p(mid);
+    return divide;
+};
+const createDfsBinarySearch = (predicate, divide, midpoint, shouldContinue) => {
+    const dfsBinarySearch = function* (division, activeComponents) {
+        const components = shouldContinue(division, activeComponents);
+        if (components.size === 0) {
+            yield division.always;
+            return;
+        }
+        const mid = midpoint(division, components);
+        const result = predicate(mid);
         const forward = result ? division.never : division.always;
         const backward = result ? division.always : division.never;
-        for (const { always, never } of divide(forward, backward, mid, result)) {
-            const _d = [...d];
-            if (c(always, never)) {
-                yield* dfsBinarySearch({ always, never });
-            }
-            else {
-                yield always;
-            }
-            _d.forEach((i) => d.add(i));
+        const divisions = divide(forward, backward, mid, result, components);
+        for (const { always, never } of divisions) {
+            yield* dfsBinarySearch({ always, never }, components);
         }
     };
     return dfsBinarySearch;
@@ -78,7 +61,10 @@ export const ndBinarySearch = function* (alwaysEnd, neverEnd, predicate, midpoin
         midpoint.length !== shouldContinue.length) {
         throw new Error("All input vectors must have the same length");
     }
-    const ctx = createContext(predicate, midpoint, shouldContinue);
-    const dfsBinarySearch = createDfsBinarySearch(ctx);
-    yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd });
+    const divide = createDivide(predicate);
+    const m = createMidpoint(midpoint);
+    const c = createShouldContinue(shouldContinue);
+    const dfsBinarySearch = createDfsBinarySearch(predicate, divide, m, c);
+    const components = new Set(Array.from(alwaysEnd, (_, i) => i));
+    yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd }, components);
 };
