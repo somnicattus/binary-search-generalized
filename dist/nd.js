@@ -12,8 +12,8 @@ const createMidpoint = (midpoint) => (division, components) => {
     const { always, never } = division;
     return midpoint.map((fn, i) => components.has(i) ? fn(always[i], never[i]) : always[i]);
 };
-const vectorWith = (vector1, index, value) => {
-    const result = vector1.slice();
+const vectorWith = (vector, index, value) => {
+    const result = vector.slice();
     result[index] = value;
     return result;
 };
