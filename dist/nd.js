@@ -18,21 +18,19 @@ const vectorWith = (vector, index, value) => {
     return result;
 };
 const createDivide = (predicate) => {
-    const divide = function* (forward, backward, mid, result, components, done = new Set()) {
+    const divide = function* (forward, backward, mid, result, components) {
         yield result
             ? { always: mid, never: forward }
             : { always: forward, never: mid };
-        const _done = new Set(done);
-        for (const i of components) {
-            if (_done.has(i))
-                continue;
-            _done.add(i);
+        const _components = new Set(components);
+        for (const i of _components) {
+            _components.delete(i);
             const omitted = vectorWith(forward, i, mid[i]);
             if (predicate(omitted) === result) {
                 continue;
             }
             const counter = vectorWith(mid, i, backward[i]);
-            yield* divide(omitted, backward, counter, result, components, _done);
+            yield* divide(omitted, backward, counter, result, _components);
         }
     };
     return divide;

@@ -62,17 +62,15 @@ const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
 		mid: ReadonlyVector<D, T>,
 		result: boolean,
 		components: ReadonlySet<D>,
-		done: ReadonlySet<D> = new Set(),
 	): Generator<Division<D, T>> {
 		// Division with no omit must include boundary
 		yield result
 			? { always: mid, never: forward }
 			: { always: forward, never: mid };
-		const _done = new Set<D>(done);
+		const _components = new Set<D>(components);
 		// Track all divisions with some omitted components
-		for (const i of components) {
-			if (_done.has(i)) continue;
-			_done.add(i);
+		for (const i of _components) {
+			_components.delete(i);
 
 			// Check whether the result changes between "mid" and "omitted" forward
 			const omitted = vectorWith(forward, i, mid[i]);
@@ -85,7 +83,7 @@ const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
 
 			// If the result changes, yield this division.
 			// Subsequent divisions may include the boundary.
-			yield* divide(omitted, backward, counter, result, components, _done);
+			yield* divide(omitted, backward, counter, result, _components);
 		}
 	};
 	return divide;
