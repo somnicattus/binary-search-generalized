@@ -1,12 +1,20 @@
 {
 	"name": "binary-search-generalized",
 	"version": "2.0.4",
-	"description": "A generalized binary search implementation in TypeScript",
-	"keywords": ["binary search", "typescript", "algorithm"],
-	"type": "module",
-	"sideEffects": false,
-	"engines": {
-		"node": ">=20"
+	"author": {
+		"name": "somnicattus",
+		"email": "somnicattus@gmail.com",
+		"url": "https://github.com/somnicattus"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/somnicattus/binary-search-generalized"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@tsconfig/strictest": "^2.0.5",
+		"@types/bun": "^1.2.20",
+		"typescript": "^5.9.2"
 	},
 	"exports": {
 		".": {
@@ -18,26 +26,14 @@
 			"default": "./dist/nd.js"
 		}
 	},
+	"description": "A generalized binary search implementation in TypeScript",
+	"engines": {
+		"node": ">=20"
+	},
 	"files": ["dist"],
+	"keywords": ["binary search", "typescript", "algorithm"],
 	"license": "MIT",
-	"author": {
-		"name": "somnicattus",
-		"email": "somnicattus@gmail.com",
-		"url": "https://github.com/somnicattus"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/somnicattus/binary-search-generalized"
-	},
-	"peerDependencies": {
-		"type-fest": "^4.41.0"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
-		"@tsconfig/strictest": "^2.0.5",
-		"@types/bun": "^1.2.20",
-		"typescript": "^5.9.2"
-	},
+	"packageManager": "bun@1.2.20",
 	"scripts": {
 		"build": "bun tsc --project tsconfig.build.json && bun tsc --project tsconfig.types.json",
 		"pack": "npm pack",
@@ -45,5 +41,6 @@
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage --coverage-reporter=text --coverage-reporter=lcov"
 	},
-	"packageManager": "bun@1.2.20"
+	"sideEffects": false,
+	"type": "module"
 }

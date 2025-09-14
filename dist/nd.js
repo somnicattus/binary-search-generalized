@@ -10,7 +10,9 @@ const createShouldContinue = (shouldContinue) => (division, components) => {
 };
 const createMidpoint = (midpoint) => (division, components) => {
     const { always, never } = division;
-    return midpoint.map((fn, i) => components.has(i) ? fn(always[i], never[i]) : always[i]);
+    return midpoint.map((fn, i) => components.has(i)
+        ? fn(always[i], never[i])
+        : always[i]);
 };
 const vectorWith = (vector, index, value) => {
     const result = vector.slice();

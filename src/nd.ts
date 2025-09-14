@@ -1,32 +1,40 @@
-import type { FixedLengthArray } from "type-fest";
-
-export type Vector<D extends number, T> = FixedLengthArray<T, D>;
-export type ReadonlyVector<D extends number, T> = Readonly<Vector<D, T>>;
-export type Predicate<D extends number, T> = (
-	vector: ReadonlyVector<D, T>,
-) => boolean;
-export type Midpoint<D extends number, T> = FixedLengthArray<
-	(always: T, never: T) => T,
-	D
->;
-export type ShouldContinue<D extends number, T> = FixedLengthArray<
-	(always: T, never: T) => boolean,
-	D
->;
-type Division<D extends number, T> = {
-	readonly always: ReadonlyVector<D, T>;
-	readonly never: ReadonlyVector<D, T>;
+type Vector = readonly unknown[];
+type ComponentIndices<T extends Vector> = keyof T & number;
+export type Predicate<T extends Vector> = (vector: T) => boolean;
+type _Midpoint<
+	T extends Vector,
+	U extends Vector = T,
+	A extends unknown[] = [],
+> = number extends T["length"]
+	? readonly ((always: T[number], never: T[number]) => T[number])[]
+	: U extends readonly [infer F, ...infer R extends unknown[]]
+		? _Midpoint<T, R, [...A, (always: F, never: F) => F]>
+		: A;
+export type Midpoint<T extends Vector> = _Midpoint<T>;
+type _ShouldContinue<
+	T extends Vector,
+	U extends Vector = T,
+	A extends unknown[] = [],
+> = number extends T["length"]
+	? readonly ((always: T[number], never: T[number]) => boolean)[]
+	: U extends readonly [infer F, ...infer R extends unknown[]]
+		? _ShouldContinue<T, R, [...A, (always: F, never: F) => boolean]>
+		: A;
+export type ShouldContinue<T extends Vector> = _ShouldContinue<T>;
+type Division<T extends Vector> = {
+	readonly always: T;
+	readonly never: T;
 };
 
 const createShouldContinue =
-	<D extends number, T>(shouldContinue: ShouldContinue<D, T>) =>
-	(division: Division<D, T>, components: Set<D>) => {
+	<T extends Vector>(shouldContinue: ShouldContinue<T>) =>
+	(division: Division<T>, components: Set<ComponentIndices<T>>) => {
 		const { always, never } = division;
-		const result = new Set<D>();
+		const result = new Set<ComponentIndices<T>>();
 		for (const i of components) {
 			// Activate component i if shouldContinue[i] returns true (false means component i has converged sufficiently)
 			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
-			if (shouldContinue[i]!(always[i]!, never[i]!)) {
+			if (shouldContinue[i]!(always[i], never[i])) {
 				result.add(i);
 			}
 		}
@@ -34,40 +42,41 @@ const createShouldContinue =
 	};
 
 const createMidpoint =
-	<D extends number, T>(midpoint: Midpoint<D, T>) =>
-	(division: Division<D, T>, components: Set<D>) => {
+	<T extends Vector>(midpoint: Midpoint<T>) =>
+	(division: Division<T>, components: Set<ComponentIndices<T>>) => {
 		const { always, never } = division;
 		return midpoint.map((fn, i) =>
 			// Apply the midpoint function only to active components
-			// biome-ignore lint/style/noNonNullAssertion: i is always valid index
-			components.has(i as D) ? fn(always[i]!, never[i]!) : always[i]!,
-		) as unknown as Vector<D, T>;
+			components.has(i as ComponentIndices<T>)
+				? fn(always[i], never[i])
+				: always[i],
+		) as unknown as T;
 	};
 
 /** Array.prototype.with */
-const vectorWith = <D extends number, T>(
-	vector: ReadonlyVector<D, T>,
-	index: D,
-	value: T,
-): Vector<D, T> => {
-	const result = vector.slice() as unknown as Vector<D, T>;
+const vectorWith = <T extends Vector>(
+	vector: T,
+	index: ComponentIndices<T>,
+	value: T[typeof index],
+): T => {
+	const result = vector.slice() as unknown as T;
 	result[index] = value;
 	return result;
 };
 
-const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
+const createDivide = <T extends Vector>(predicate: Predicate<T>) => {
 	const divide = function* (
-		forward: ReadonlyVector<D, T>,
-		backward: ReadonlyVector<D, T>,
-		mid: ReadonlyVector<D, T>,
+		forward: T,
+		backward: T,
+		mid: T,
 		result: boolean,
-		components: ReadonlySet<D>,
-	): Generator<Division<D, T>> {
+		components: ReadonlySet<ComponentIndices<T>>,
+	): Generator<Division<T>> {
 		// Division with no omit must include boundary
 		yield result
 			? { always: mid, never: forward }
 			: { always: forward, never: mid };
-		const _components = new Set<D>(components);
+		const _components = new Set<ComponentIndices<T>>(components);
 		// Track all divisions with some omitted components
 		for (const i of _components) {
 			_components.delete(i);
@@ -89,16 +98,16 @@ const createDivide = <D extends number, T>(predicate: Predicate<D, T>) => {
 	return divide;
 };
 
-const createDfsBinarySearch = <D extends number, T>(
-	predicate: Predicate<D, T>,
-	divide: ReturnType<typeof createDivide<D, T>>,
-	midpoint: ReturnType<typeof createMidpoint<D, T>>,
-	shouldContinue: ReturnType<typeof createShouldContinue<D, T>>,
+const createDfsBinarySearch = <T extends Vector>(
+	predicate: Predicate<T>,
+	divide: ReturnType<typeof createDivide<T>>,
+	midpoint: ReturnType<typeof createMidpoint<T>>,
+	shouldContinue: ReturnType<typeof createShouldContinue<T>>,
 ) => {
 	const dfsBinarySearch = function* (
-		division: Division<D, T>,
-		components: Set<D>,
-	): Generator<Vector<D, T>> {
+		division: Division<T>,
+		components: Set<ComponentIndices<T>>,
+	): Generator<T> {
 		const _components = shouldContinue(division, components);
 		if (_components.size === 0) {
 			yield division.always;
@@ -121,13 +130,13 @@ const createDfsBinarySearch = <D extends number, T>(
 	return dfsBinarySearch;
 };
 
-export const ndBinarySearch = function* <D extends number, T>(
-	alwaysEnd: ReadonlyVector<D, T>,
-	neverEnd: ReadonlyVector<D, T>,
-	predicate: Predicate<D, T>,
-	midpoint: Midpoint<D, T>,
-	shouldContinue: ShouldContinue<D, T>,
-) {
+export const ndBinarySearch = function* <T extends Vector>(
+	alwaysEnd: T,
+	neverEnd: T,
+	predicate: Predicate<T>,
+	midpoint: Midpoint<T>,
+	shouldContinue: ShouldContinue<T>,
+): Generator<T> {
 	if (
 		alwaysEnd.length !== neverEnd.length ||
 		neverEnd.length !== midpoint.length ||
@@ -139,6 +148,8 @@ export const ndBinarySearch = function* <D extends number, T>(
 	const m = createMidpoint(midpoint);
 	const c = createShouldContinue(shouldContinue);
 	const dfsBinarySearch = createDfsBinarySearch(predicate, divide, m, c);
-	const components = new Set<D>(Array.from(alwaysEnd, (_, i) => i as D));
+	const components = new Set<ComponentIndices<T>>(
+		Array.from(alwaysEnd, (_, i) => i as ComponentIndices<T>),
+	);
 	yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd }, components);
 };
