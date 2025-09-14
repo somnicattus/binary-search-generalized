@@ -130,6 +130,24 @@ const createDfsBinarySearch = <T extends Vector>(
 	return dfsBinarySearch;
 };
 
+/**
+ * Enumerate inside-border grid points of a monotone region in N dimensions.
+ *
+ * Notes:
+ * - The generator does not mutate values after yielding them. However, yielded vectors are
+ *   part of the traversal state and are intended to be treated as immutable by callers. If you
+ *   want to modify or store them safely, make a copy first (e.g., `[...v]` for primitives, or clone deeply if the values are object).
+ * - `midpoint` and `shouldContinue` must have the same length as the input vectors and should
+ *   be designed together to ensure convergence (e.g., integer midpoint with gap-based termination).
+ *
+ * @typeParam T - A readonly tuple/array type representing a vector in D dimensions.
+ * @param alwaysEnd A vector that definitely satisfies the predicate (inside/true corner).
+ * @param neverEnd A vector that definitely does not satisfy the predicate (outside/false corner).
+ * @param predicate Monotone decision function across the hyper-rectangle from `alwaysEnd` to `neverEnd`.
+ * @param midpoint Per-dimension midpoint functions; only applied to still-active dimensions.
+ * @param shouldContinue Per-dimension continuation predicates; a dimension deactivates when this returns false.
+ * @returns A generator yielding vectors on the inside border; output order is not guaranteed.
+ */
 export const ndBinarySearch = function* <T extends Vector>(
 	alwaysEnd: T,
 	neverEnd: T,

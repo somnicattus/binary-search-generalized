@@ -174,6 +174,7 @@ Enumerate boundary points of a monotone region in D dimensions.
 
 - `ndBinarySearch(alwaysEnd, neverEnd, predicate, midpoint, shouldContinue) → Iterable<Vector<D, T>>`
   - Yields vectors on the inside border; order is not guaranteed.
+  - The generator won’t mutate a value after yielding it, but it may still reference that value internally while computing subsequent grid points. Treat yielded vectors as immutable; if you need to modify or persist them, copy first (e.g., `[...v]`).
   - `alwaysEnd` must satisfy `predicate` and `neverEnd` must not.
   - `midpoint` and `shouldContinue` are arrays of per‑dimension functions of length `D` and must have the same length.
   - Each dimension deactivates when `shouldContinue[i](always[i], never[i])` becomes false; the search stops when all dimensions deactivate.
@@ -197,6 +198,7 @@ See also: [README § Technical notes about N‑dimensional search](#technical-no
 - Duplicates: `binarySearchArray` returns the first index; use `binarySearchArrayLast` for the last index. Choose left/right insertion helpers depending on where you want to insert equal values.
 - Mixed types or NaN: avoid mixing numbers with `NaN` or incompatible types. For bigint arrays, don’t mix with numbers.
 - Convergence: for custom domains, ensure your `midpoint` and termination condition guarantee convergence.
+- Mutating yielded vectors (N‑dimensional): the generator won’t mutate a yielded value, but it may still reference it internally while continuing the search. Treat yielded vectors as immutable and copy before modifying or persisting (e.g., `results.push([...v])`).
 
 ## Examples
 
