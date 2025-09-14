@@ -140,7 +140,7 @@ const createDfsBinarySearch = <T extends Vector>(
  * - `midpoint` and `shouldContinue` must have the same length as the input vectors and should
  *   be designed together to ensure convergence (e.g., integer midpoint with gap-based termination).
  *
- * @typeParam T - A readonly tuple/array type representing a vector in D dimensions.
+ * @typeParam T - A tuple/array type representing a vector in N dimensions.
  * @param alwaysEnd A vector that definitely satisfies the predicate (inside/true corner).
  * @param neverEnd A vector that definitely does not satisfy the predicate (outside/false corner).
  * @param predicate Monotone decision function across the hyper-rectangle from `alwaysEnd` to `neverEnd`.
