@@ -55,7 +55,7 @@ const createDfsBinarySearch = (predicate, divide, midpoint, shouldContinue) => {
     };
     return dfsBinarySearch;
 };
-export const ndBinarySearch = function* (alwaysEnd, neverEnd, predicate, midpoint, shouldContinue) {
+export const ndBinarySearch = (alwaysEnd, neverEnd, predicate, midpoint, shouldContinue) => {
     if (alwaysEnd.length !== neverEnd.length ||
         neverEnd.length !== midpoint.length ||
         midpoint.length !== shouldContinue.length) {
@@ -66,5 +66,5 @@ export const ndBinarySearch = function* (alwaysEnd, neverEnd, predicate, midpoin
     const c = createShouldContinue(shouldContinue);
     const dfsBinarySearch = createDfsBinarySearch(predicate, divide, m, c);
     const components = new Set(Array.from(alwaysEnd, (_, i) => i));
-    yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd }, components);
+    return dfsBinarySearch({ always: alwaysEnd, never: neverEnd }, components);
 };

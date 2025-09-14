@@ -148,13 +148,13 @@ const createDfsBinarySearch = <T extends Vector>(
  * @param shouldContinue Per-dimension continuation predicates; a dimension deactivates when this returns false.
  * @returns A generator yielding vectors on the inside border; output order is not guaranteed.
  */
-export const ndBinarySearch = function* <T extends Vector>(
+export const ndBinarySearch = <T extends Vector>(
 	alwaysEnd: T,
 	neverEnd: T,
 	predicate: Predicate<T>,
 	midpoint: Midpoint<T>,
 	shouldContinue: ShouldContinue<T>,
-): Generator<T> {
+): Generator<T> => {
 	if (
 		alwaysEnd.length !== neverEnd.length ||
 		neverEnd.length !== midpoint.length ||
@@ -169,5 +169,5 @@ export const ndBinarySearch = function* <T extends Vector>(
 	const components = new Set<ComponentIndices<T>>(
 		Array.from(alwaysEnd, (_, i) => i as ComponentIndices<T>),
 	);
-	yield* dfsBinarySearch({ always: alwaysEnd, never: neverEnd }, components);
+	return dfsBinarySearch({ always: alwaysEnd, never: neverEnd }, components);
 };
