@@ -1,24 +1,19 @@
 import { describe, it, expect } from "bun:test";
-import {
-	type Midpoint,
-	ndBinarySearch,
-	type Vector,
-	type Predicate,
-	type ShouldContinue,
-} from "../src/nd";
+import { type Midpoint, ndBinarySearch, type ShouldContinue } from "../src/nd";
 
 describe("ndBinarySearch", () => {
 	it("should find the correct border", () => {
 		const r = 4;
-		const alwaysEnd: Vector<3, number> = [0, 0, 0];
-		const neverEnd: Vector<3, number> = [r * 4, r * 2, r * 3];
-		const predicate: Predicate<3, number> = (vector: Vector<3, number>) =>
+		type Vec = [number, number, number];
+		const alwaysEnd: Vec = [0, 0, 0];
+		const neverEnd: Vec = [r * 4, r * 2, r * 3];
+		const predicate = (vector: Vec) =>
 			vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2 < r ** 2; // Sphere equation
 		const mid = (always: number, never: number) =>
 			Math.floor((always + never) / 2);
-		const midpoint: Midpoint<3, number> = [mid, mid, mid];
+		const midpoint: Midpoint<Vec> = [mid, mid, mid];
 		const c = (always: number, never: number) => never - always > 1;
-		const shouldContinue: ShouldContinue<3, number> = [c, c, c];
+		const shouldContinue: ShouldContinue<Vec> = [c, c, c];
 
 		const result = [
 			...ndBinarySearch(
@@ -96,5 +91,37 @@ describe("ndBinarySearch", () => {
 			);
 			expect(neighbors).not.toHaveLength(0);
 		});
+	});
+
+	it("throws when input lengths mismatch (coverage for length check)", () => {
+		const mid = (a: number, b: number) => Math.floor((a + b) / 2);
+		const c = (a: number, b: number) => b - a > 1;
+
+		// Case 1: alwaysEnd and neverEnd length mismatch
+		expect(() =>
+			ndBinarySearch([0, 0, 0], [1, 1], () => true, [mid, mid], [c, c]),
+		).toThrow("All input vectors must have the same length");
+
+		// Case 2: midpoint length mismatch
+		expect(() =>
+			ndBinarySearch(
+				[0, 0],
+				[2, 2],
+				(v: number[]) => v[0] + v[1] <= 1,
+				[mid],
+				[c, c],
+			),
+		).toThrow("All input vectors must have the same length");
+
+		// Case 3: shouldContinue length mismatch
+		expect(() =>
+			ndBinarySearch(
+				[0, 0],
+				[2, 2],
+				(v: number[]) => v[0] + v[1] <= 1,
+				[mid, mid],
+				[c],
+			),
+		).toThrow("All input vectors must have the same length");
 	});
 });
