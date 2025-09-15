@@ -1,5 +1,9 @@
 import { describe, it, expect } from "bun:test";
-import { type Midpoint, ndBinarySearch, type ShouldContinue } from "../src/nd";
+import {
+	type Midpoint,
+	ndBinarySearch,
+	type ShouldContinue,
+} from "../src/nd.js";
 
 describe("ndBinarySearch", () => {
 	it("should find the correct border", () => {
@@ -99,28 +103,37 @@ describe("ndBinarySearch", () => {
 
 		// Case 1: alwaysEnd and neverEnd length mismatch
 		expect(() =>
-			ndBinarySearch([0, 0, 0], [1, 1], () => true, [mid, mid], [c, c]),
+			ndBinarySearch<[number, number]>(
+				// biome-ignore lint/suspicious/noExplicitAny: testing length check
+				[0, 0, 0] as any,
+				[1, 1],
+				() => true,
+				[mid, mid],
+				[c, c],
+			),
 		).toThrow("All input vectors must have the same length");
 
 		// Case 2: midpoint length mismatch
 		expect(() =>
-			ndBinarySearch(
+			ndBinarySearch<[number, number]>(
 				[0, 0],
 				[2, 2],
-				(v: number[]) => v[0] + v[1] <= 1,
-				[mid],
+				(v) => v[0] + v[1] <= 1,
+				// biome-ignore lint/suspicious/noExplicitAny: testing length check
+				[mid] as any,
 				[c, c],
 			),
 		).toThrow("All input vectors must have the same length");
 
 		// Case 3: shouldContinue length mismatch
 		expect(() =>
-			ndBinarySearch(
+			ndBinarySearch<[number, number]>(
 				[0, 0],
 				[2, 2],
-				(v: number[]) => v[0] + v[1] <= 1,
+				(v) => v[0] + v[1] <= 1,
 				[mid, mid],
-				[c],
+				// biome-ignore lint/suspicious/noExplicitAny: testing length check
+				[c] as any,
 			),
 		).toThrow("All input vectors must have the same length");
 	});
