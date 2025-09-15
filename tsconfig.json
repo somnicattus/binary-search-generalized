@@ -12,5 +12,6 @@
 		/* Emit */
 		"noEmit": true
 	},
-	"include": ["*.ts", "*.js", "!dist", "test/index.test.ts"]
+	"include": ["**/*.ts", "**/*.js"],
+	"exclude": ["node_modules", "dist"]
 }
