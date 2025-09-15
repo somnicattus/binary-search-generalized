@@ -1,14 +1,14 @@
-import { describe, it, expect } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import {
 	binarySearch,
-	binarySearchInteger,
-	binarySearchBigint,
-	binarySearchDouble,
 	binarySearchArray,
-	binarySearchArrayLast,
-	binarySearchGeneralized,
 	binarySearchArrayInsertionLeft,
 	binarySearchArrayInsertionRight,
+	binarySearchArrayLast,
+	binarySearchBigint,
+	binarySearchDouble,
+	binarySearchGeneralized,
+	binarySearchInteger,
 } from "../src/index.js";
 
 describe("binarySearchInteger", () => {
