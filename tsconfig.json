@@ -1,5 +1,5 @@
 {
-	"extends": "@tsconfig/strictest/tsconfig.json",
+	"extends": "@tsconfig/strictest",
 	"compilerOptions": {
 		/* Language and Environment */
 		"target": "ES2020",
@@ -10,7 +10,15 @@
 		"moduleResolution": "node16",
 
 		/* Emit */
-		"noEmit": true
+		"noEmit": true,
+		"declaration": true,
+
+		/* JavaScript Support */
+		"allowJs": false,
+		"checkJs": false,
+
+		/* Interop Constraints */
+		"isolatedDeclarations": true
 	},
 	"include": ["**/*.ts", "**/*.js"],
 	"exclude": ["node_modules", "dist"]

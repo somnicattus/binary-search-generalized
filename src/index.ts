@@ -227,7 +227,7 @@ export const binarySearchInteger = (
 	predicate: (value: number) => boolean,
 	/** @default "check" */
 	safety: "check" | "nocheck" = "check",
-) => {
+): number => {
 	if (
 		Number.isSafeInteger(alwaysEnd) === false ||
 		Number.isSafeInteger(neverEnd) === false
@@ -598,7 +598,7 @@ export const binarySearchArray: {
 /**
  * Alias of {@link binarySearchArray}
  */
-export const bsFindIndex = binarySearchArray;
+export const bsFindIndex: typeof binarySearchArray = binarySearchArray;
 
 /**
  * Performs a binary search on a sorted array. Returns the largest index when duplicates exist.
@@ -694,7 +694,8 @@ export const binarySearchArrayLast: {
 /**
  * Alias of {@link binarySearchArrayLast}
  */
-export const bsFindLastIndex = binarySearchArrayLast;
+export const bsFindLastIndex: typeof binarySearchArrayLast =
+	binarySearchArrayLast;
 
 /**
  * Performs a binary search on a sorted array and returns the left insertion point.
@@ -866,12 +867,14 @@ export const binarySearchArrayInsertionLeft: {
 /**
  * Alias of {@link binarySearchArrayInsertionLeft}
  */
-export const bsInsertionLeft = binarySearchArrayInsertionLeft;
+export const bsInsertionLeft: typeof binarySearchArrayInsertionLeft =
+	binarySearchArrayInsertionLeft;
 
 /**
  * Alias of {@link binarySearchArrayInsertionLeft}
  */
-export const bsLowerBound = binarySearchArrayInsertionLeft;
+export const bsLowerBound: typeof binarySearchArrayInsertionLeft =
+	binarySearchArrayInsertionLeft;
 
 /**
  * Performs a binary search on a sorted array and returns the right insertion point.
@@ -1045,12 +1048,14 @@ export const binarySearchArrayInsertionRight: {
 /**
  * Alias of {@link binarySearchArrayInsertionRight}
  */
-export const bsInsertionRight = binarySearchArrayInsertionRight;
+export const bsInsertionRight: typeof binarySearchArrayInsertionRight =
+	binarySearchArrayInsertionRight;
 
 /**
  * Alias of {@link binarySearchArrayInsertionRight}
  */
-export const bsUpperBound = binarySearchArrayInsertionRight;
+export const bsUpperBound: typeof binarySearchArrayInsertionRight =
+	binarySearchArrayInsertionRight;
 
 /**
  * Performs a generalized binary search over a range of non‑primitive numeric‑like values.

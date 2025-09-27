@@ -309,12 +309,7 @@ export declare const binarySearchArray: {
 /**
  * Alias of {@link binarySearchArray}
  */
-export declare const bsFindIndex: {
-    (sortedArray: ArrayLike<number>, target: number): number;
-    (sortedArray: ArrayLike<bigint>, target: bigint): number;
-    (sortedArray: ArrayLike<string>, target: string): number;
-    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
-};
+export declare const bsFindIndex: typeof binarySearchArray;
 /**
  * Performs a binary search on a sorted array. Returns the largest index when duplicates exist.
  * @example
@@ -399,12 +394,7 @@ export declare const binarySearchArrayLast: {
 /**
  * Alias of {@link binarySearchArrayLast}
  */
-export declare const bsFindLastIndex: {
-    <T extends number>(sortedArray: ArrayLike<T>, target: T): number;
-    <T extends bigint>(sortedArray: ArrayLike<T>, target: T): number;
-    <T extends string>(sortedArray: ArrayLike<T>, target: T): number;
-    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
-};
+export declare const bsFindLastIndex: typeof binarySearchArrayLast;
 /**
  * Performs a binary search on a sorted array and returns the left insertion point.
  * @example
@@ -531,21 +521,11 @@ export declare const binarySearchArrayInsertionLeft: {
 /**
  * Alias of {@link binarySearchArrayInsertionLeft}
  */
-export declare const bsInsertionLeft: {
-    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
-    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
-};
+export declare const bsInsertionLeft: typeof binarySearchArrayInsertionLeft;
 /**
  * Alias of {@link binarySearchArrayInsertionLeft}
  */
-export declare const bsLowerBound: {
-    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
-    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
-};
+export declare const bsLowerBound: typeof binarySearchArrayInsertionLeft;
 /**
  * Performs a binary search on a sorted array and returns the right insertion point.
  * @example
@@ -672,21 +652,11 @@ export declare const binarySearchArrayInsertionRight: {
 /**
  * Alias of {@link binarySearchArrayInsertionRight}
  */
-export declare const bsInsertionRight: {
-    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
-    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
-};
+export declare const bsInsertionRight: typeof binarySearchArrayInsertionRight;
 /**
  * Alias of {@link binarySearchArrayInsertionRight}
  */
-export declare const bsUpperBound: {
-    (sortedArray: ArrayLike<number>, target: number, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<bigint>, target: bigint, order?: "asc" | "desc"): number;
-    (sortedArray: ArrayLike<string>, target: string, order?: "asc" | "desc"): number;
-    <T>(sortedArray: ArrayLike<T>, target: T, compareFn: (a: T, b: T) => number): number;
-};
+export declare const bsUpperBound: typeof binarySearchArrayInsertionRight;
 /**
  * Performs a generalized binary search over a range of non‑primitive numeric‑like values.
  * @example
