@@ -1,6 +1,6 @@
 {
 	"name": "binary-search-generalized",
-	"version": "2.1.1",
+	"version": "2.1.2",
 	"author": {
 		"name": "somnicattus",
 		"email": "somnicattus@gmail.com",
@@ -30,8 +30,14 @@
 	"engines": {
 		"node": ">=20"
 	},
-	"files": ["dist"],
-	"keywords": ["binary search", "typescript", "algorithm"],
+	"files": [
+		"dist"
+	],
+	"keywords": [
+		"binary search",
+		"typescript",
+		"algorithm"
+	],
 	"license": "MIT",
 	"packageManager": "bun@1.2.20",
 	"scripts": {
